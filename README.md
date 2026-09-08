@@ -7,8 +7,34 @@ prompting.
 
 ## Install
 
+SpaceKid isn't published on PyPI yet, so install it straight from GitHub.
+It's a command-line tool, not a library your code imports, so `pipx` is the
+recommended way to get it — it installs `spacekid` in its own isolated
+environment and puts the command on your `PATH`, without touching the
+virtualenv of whatever project you run it in:
+
 ```bash
-pip install spacekid
+pipx install git+https://github.com/victorradael/spacekid.git
+```
+
+Alternatively, install it into a project's own virtualenv with `pip`:
+
+```bash
+pip install git+https://github.com/victorradael/spacekid.git
+```
+
+Or pin it as a dev dependency in that project's `pyproject.toml`:
+
+```toml
+[dependency-groups]
+dev = ["spacekid @ git+https://github.com/victorradael/spacekid.git"]
+```
+
+If the repository is private, use the SSH form instead of `https://` on any
+of the above (requires an SSH key registered with GitHub):
+
+```
+git+ssh://git@github.com/victorradael/spacekid.git
 ```
 
 Then, from the root of the Python project you want to adopt the workflow in:
