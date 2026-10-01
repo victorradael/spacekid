@@ -1,0 +1,29 @@
+{
+  "name": "spacekid",
+  "version": "0.1.0",
+  "description": "A minimalist spec kit for agentic development.",
+  "license": "MIT",
+  "bin": {
+    "spacekid": "bin/spacekid.js"
+  },
+  "main": "src/index.js",
+  "types": "types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "default": "./src/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "bin",
+    "src",
+    "types"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "test": "node --test"
+  }
+}
