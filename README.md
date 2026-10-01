@@ -57,6 +57,21 @@ current directory:
 Run `spacekid init --path <dir>` to scaffold a different directory than the
 current one.
 
+### JavaScript / TypeScript projects
+
+The same command is available as an npm package (source in [`js/`](js/)).
+Run it on demand, or install it as a dev dependency:
+
+```bash
+npx spacekid init
+# or
+npm install --save-dev spacekid
+```
+
+It scaffolds the same three files with the same rules; the project name is
+detected from `package.json` (or the directory name). Node 20 or newer is
+required. The package ships its own TypeScript type definitions.
+
 ## Why a closed loop
 
 Agentic coding tends to drift: an agent starts implementing before the
