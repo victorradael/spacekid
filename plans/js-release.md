@@ -1,0 +1,166 @@
+# JS Package Automated Release — Implementation Plan
+
+Implements: `specs/js-release.md`
+Status: Implemented in code (steps 0–5). Step 6 (manual setup and first live release) is pending the maintainer.
+
+## Approach
+
+One GitHub Actions workflow, `.github/workflows/js.yml`, with two jobs:
+
+- `test` runs on every pull request and on pushes to `main`: `npm ci` and
+  `npm test` in `js/`, on a Node 20 / 22 matrix (20 is the `engines` floor).
+  It has no path filter, so the required `test` check is always reported
+  (a path-filtered workflow never reports on unrelated PRs and would block
+  their merge). The job is cheap.
+- `release` runs only on pushes to `main`, `needs: test`, on Node 24, and runs
+  `semantic-release` from `js/`. Node 24 ships npm 11, which satisfies the
+  trusted-publishing requirements (npm >= 11.5.1, Node >= 22.14) and the
+  semantic-release engines range (`^22.14.0 || >=24.10.0`), so no explicit npm
+  upgrade step is needed.
+
+Release tooling is added to `js/` as `devDependencies` (with a committed
+lockfile so `npm ci` is reproducible). The published tarball is unaffected:
+`files` already whitelists only `bin`, `src`, `types`.
+
+Authentication uses **npm trusted publishing (OIDC)**: the `release` job gets
+`id-token: write`, npm exchanges the workflow's OIDC identity for a
+short-lived publish credential, and provenance attestations are generated
+automatically. No `NPM_TOKEN` secret is stored. The job's only other
+permission is `contents: write` (tags and GitHub Releases).
+
+Semantic-release configuration lives in `js/.releaserc.json`:
+
+- `branches: ["main"]`.
+- `tagFormat: "js-v${version}"`, so JS tags never collide with a future
+  Python release tag scheme.
+- Plugins: `commit-analyzer` (Angular preset), `release-notes-generator`,
+  `npm`, `github` (with `successComment` / `failComment` disabled so no
+  issue/PR write permission is needed). No `git` or `changelog` plugin: the
+  release never commits back to `main`, which keeps branch protection simple
+  and honors the spec's out-of-scope item.
+- Path scoping via `semantic-release-monorepo`, so only commits touching
+  `js/` count toward a JS release (Python-only, root docs, and spec/plan
+  commits produce nothing). See Risks: this plugin is not verified.
+
+## Steps
+
+0. **Spike (before anything else).** In a scratch branch, validate the two
+   unverified assumptions with `semantic-release --dry-run`:
+   - `semantic-release-monorepo` works with the current semantic-release
+     major, only counts `js/` commits, and does not override
+     `tagFormat: "js-v${version}"`.
+   - `@semantic-release/npm` (record the minimum working version) publishes
+     through OIDC without `NPM_TOKEN`; its `verifyConditions` must not demand
+     a token. If either fails, apply the fallback in Risks and update this
+     plan before continuing.
+1. Add `devDependencies` to `js/package.json`: `semantic-release` and
+   `semantic-release-monorepo` (pinned), plus the lockfile
+   (`js/package-lock.json`). Add `repository`, `bugs`, `homepage` fields and
+   `publishConfig: { access: "public", provenance: true }`. Provenance and
+   trusted publishing require `repository.url` to match the GitHub repo
+   exactly.
+2. Create `js/.releaserc.json` as described in Approach.
+3. Create `.github/workflows/js.yml`:
+   - Trigger: `pull_request` and `push` to `main`, no path filter.
+   - Top-level `permissions: contents: read`; the `release` job overrides to
+     `contents: write` and `id-token: write`.
+   - `actions/checkout` with `fetch-depth: 0` (semantic-release needs full
+     history and tags) and `persist-credentials: false` (semantic-release
+     pushes tags using `GITHUB_TOKEN`).
+   - `actions/setup-node` with `registry-url: https://registry.npmjs.org` and
+     `package-manager-cache: false` in the `release` job (no caching in
+     release builds).
+   - Release step: `npx semantic-release` with `GITHUB_TOKEN` from the
+     workflow; no npm token is passed.
+   - Third-party actions pinned to full commit SHAs (looked up at
+     implementation time), kept current by Dependabot.
+4. Add `.github/dependabot.yml` for `github-actions` and the `js/` npm
+   ecosystem (weekly).
+5. Update the root `README.md`: keep the npm install/usage section, and add
+   a short "Releasing" note explaining that releases are automatic from
+   conventional commits touching `js/`: `fix` → patch, `feat` → minor, and a
+   `BREAKING CHANGE:` footer → major. The Angular preset does not recognize
+   the `feat!:` shorthand, so the note must say the footer is required.
+6. Manual repository setup, documented in the README and performed by the
+   maintainer (cannot be done from code):
+   - On npmjs.com, after the package exists, configure a **Trusted
+     Publisher** for `victorradael/spacekid`, workflow `js.yml`. This
+     configuration is not verified on save; mistakes only surface at publish
+     time.
+   - In GitHub, protect `main` (required `test` check) and restrict the
+     workflow's default token to read-only.
+   - After the first successful release, confirm no `NPM_TOKEN` secret
+     exists, and revoke the bootstrap token on npmjs.com.
+
+## Key Decisions
+
+- **Trusted publishing over a stored `NPM_TOKEN`.** It is the only option
+  that satisfies "no long-lived secret" and gives provenance for free.
+  Trade-off: a trusted publisher can only be configured on a package that
+  already exists on npm, so the very first publish needs a bootstrap (see
+  Decisions Taken).
+- **`semantic-release-monorepo` for path scoping.** The repo holds both
+  Python and JS packages; plain semantic-release would count every commit.
+  Scope-only rules (`feat(js)`) were rejected because an unscoped breaking
+  change would silently be ignored or mis-released. release-please was
+  rejected because it releases through a "release PR", which is a manual
+  step the spec forbids. Trade-off: a small, older third-party plugin.
+- **No commit-back to `main`.** `package.json` keeps its checked-in version
+  as a placeholder; the real version is set in the published tarball and
+  recorded in the git tag and GitHub Release. This avoids needing a bypass
+  for branch protection.
+- **One workflow, two jobs.** Keeps the trusted-publisher binding to a
+  single workflow filename and guarantees `release` can never run without
+  `test` passing.
+- **Unfiltered `test` job.** Trades a few seconds of CI on non-JS PRs for a
+  required check that always reports.
+
+## Risks
+
+- **`semantic-release-monorepo` is unverified.** It is small and older, and
+  modern semantic-release is ESM with newer Node requirements. It may also
+  derive its own tag format from the package name, overriding `tagFormat`.
+  Step 0 decides. Fallback: a small in-repo plugin that filters commits by
+  path (`js/`), or releasing only from commits whose files touch `js/`.
+- **OIDC support in `@semantic-release/npm` is unverified.** The upstream
+  semantic-release workflow still passes `NPM_TOKEN`. Step 0 decides.
+  Fallback: disable the plugin's publish (`npmPublish: false`) and run
+  `npm publish` in a dedicated workflow step after semantic-release computes
+  the version, still using OIDC.
+
+## Decisions Taken
+
+- **Bootstrap.** Manually publish `0.1.0` with a temporary, granular npm
+  token, create tag `js-v0.1.0` on a commit in `main`'s history, then
+  configure the trusted publisher and revoke the token. Releases continue
+  from `0.x`.
+- **Package name.** `spacekid` is confirmed as the final name; the manual
+  bootstrap publish also reserves it.
+
+## Implementation Notes
+
+- **Spike (step 0) passed.** `semantic-release@25.0.9` with
+  `semantic-release-monorepo@8.0.2`, run with `--dry-run` in a scratch clone
+  with a `js-v0.1.0` tag: only `js/` commits were counted (a root-only commit
+  carrying a `BREAKING CHANGE:` footer was ignored), the next version was
+  `0.2.0`, and links used `js-v` tags, so `tagFormat` is honored. Cosmetic
+  quirk: the monorepo plugin makes the release-notes heading read
+  `spacekid-v0.2.0` instead of `js-v0.2.0`; accepted.
+- **OIDC needs no fallback.** `@semantic-release/npm@13.2.0` (pulled in by
+  `semantic-release@25`) supports trusted publishing natively and skips the
+  `NPM_TOKEN` requirement when an OIDC context exists. The `npm publish`
+  fallback was not needed. The actual OIDC publish could not be exercised
+  locally; it is first proven by the first real release.
+- **Release-job installs.** The `release` job runs `npm ci` in `js/` so the
+  pinned devDependencies are available to `npx semantic-release`.
+- **Node 20 matrix leg.** The release devDependencies require Node >= 22.14;
+  on Node 20 `npm ci` only warns (no `engine-strict`) and tests do not use
+  them.
+- **Action pins.** `actions/checkout` v7.0.1 and `actions/setup-node` v7.0.0,
+  pinned by SHA; the `test` job additionally uses npm caching, the `release`
+  job does not.
+- **Pending (step 6):** bootstrap publish of `0.1.0` and the `js-v0.1.0` tag,
+  Trusted Publisher configuration on npm, branch protection, token
+  revocation. Documented in the root `README.md`. Without the `js-v0.1.0`
+  tag the first run would publish `1.0.0`, so the tag must exist before
+  this lands on `main`.
