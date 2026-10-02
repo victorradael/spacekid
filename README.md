@@ -156,7 +156,37 @@ does. A closed, file-based loop means:
 /specs/<name>.md      # one per feature, business-only
 /plans/AGENTS.md     # how to write a good implementation plan
 /plans/<name>.md      # one per spec, technical design + status
+/js/                 # npm package (spacekid init)
 ```
+
+## Releasing the npm package
+
+Releases are automatic. Every push to `main` runs the tests and then
+[semantic-release](https://semantic-release.gitbook.io/), which looks only at
+commits that touch `js/` and publishes to npm when one deserves a release:
+
+- `fix:` → patch
+- `feat:` → minor
+- a `BREAKING CHANGE:` footer in the commit body → major (the `feat!:`
+  shorthand is **not** recognized; the footer is required)
+
+Anything else (Python-only changes, docs, tests, specs, plans) publishes
+nothing. Tags are named `js-vX.Y.Z` and each one gets a GitHub Release with
+generated notes. Publishing uses npm trusted publishing (OIDC) with
+provenance: no npm token is stored in the repository.
+
+### One-time maintainer setup
+
+1. Publish `0.1.0` once by hand with a temporary, granular npm token (a
+   trusted publisher can only be added to a package that already exists),
+   then tag that commit: `git tag js-v0.1.0 <commit> && git push origin js-v0.1.0`.
+2. On npmjs.com, open the package settings and add a **Trusted Publisher**:
+   GitHub Actions, repository `victorradael/spacekid`, workflow `js.yml`.
+   npm does not validate this on save; mistakes only show up at publish time.
+3. In GitHub, protect `main` (require the `test` checks) and set the
+   workflow's default token permissions to read-only.
+4. After the first automated release succeeds, revoke the temporary npm token
+   and confirm no `NPM_TOKEN` secret exists in the repository.
 
 ## Language
 
