@@ -1,6 +1,6 @@
 # JS Package Automated Release
 
-Status: Implemented, awaiting first live release (requires one-time maintainer setup). No acceptance criteria changed.
+Status: Implemented, awaiting first live release (requires one-time maintainer setup). Revised: publishing is now staged and a maintainer approves each version with two-factor authentication, so it is no longer fully manual-step-free.
 
 ## Context
 
@@ -19,7 +19,9 @@ number, without anyone handling publishing credentials.
 
 - Every change merged to the main branch is evaluated automatically; if it
   contains a user-visible change to the JavaScript package, a new version is
-  published to the public npm registry with no manual step.
+  prepared for the public npm registry automatically, and a maintainer
+  approves it with two-factor authentication before it goes live. Approval is
+  the only manual step.
 - The version number follows semantic versioning and is derived from the
   commit history: fixes produce a patch release, new features a minor
   release, and breaking changes a major release. Changes that do not affect
@@ -47,7 +49,8 @@ number, without anyone handling publishing credentials.
 ## Acceptance Criteria
 
 - [ ] Merging a fix affecting the JavaScript package to the main branch
-      publishes a new patch version with no manual action.
+      prepares a new patch version, which goes live once a maintainer
+      approves it; no other manual action is needed.
 - [ ] Merging a new feature publishes a new minor version; merging a
       breaking change publishes a new major version.
 - [ ] Merging a change that does not affect the JavaScript package publishes

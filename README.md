@@ -163,7 +163,8 @@ does. A closed, file-based loop means:
 
 Releases are automatic. Every push to `main` runs the tests and then
 [semantic-release](https://semantic-release.gitbook.io/), which looks only at
-commits that touch `js/` and publishes to npm when one deserves a release:
+commits that touch `js/` and stages a release on npm when one deserves it. A
+maintainer then promotes the staged version (see below):
 
 - `fix:` → patch
 - `feat:` → minor
@@ -172,8 +173,17 @@ commits that touch `js/` and publishes to npm when one deserves a release:
 
 Anything else (Python-only changes, docs, tests, specs, plans) publishes
 nothing. Tags are named `js-vX.Y.Z` and each one gets a GitHub Release with
-generated notes. Publishing uses npm trusted publishing (OIDC) with
-provenance: no npm token is stored in the repository.
+generated notes. The pipeline runs `npm stage publish` using npm trusted
+publishing (OIDC) with provenance: no npm token is stored in the repository.
+The version only becomes public after a maintainer approves it:
+
+```bash
+npm stage list spacekid
+npm stage approve <stage-id>   # prompts for 2FA
+# or: npm stage reject <stage-id>
+```
+
+Requires npm >= 11.15.0 and Node >= 22.14.
 
 ### One-time maintainer setup
 
@@ -185,6 +195,7 @@ provenance: no npm token is stored in the repository.
    npm does not validate this on save; mistakes only show up at publish time.
 3. In GitHub, protect `main` (require the `test` checks) and set the
    workflow's default token permissions to read-only.
+   Also confirm the Trusted Publisher is allowed to stage versions.
 4. After the first automated release succeeds, revoke the temporary npm token
    and confirm no `NPM_TOKEN` secret exists in the repository.
 

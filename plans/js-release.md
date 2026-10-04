@@ -1,7 +1,7 @@
 # JS Package Automated Release — Implementation Plan
 
 Implements: `specs/js-release.md`
-Status: Implemented in code (steps 0–5). Step 6 (manual setup and first live release) is pending the maintainer.
+Status: Implemented in code (steps 0–5), then revised for npm staged publishing (step 7, see Implementation Notes). Step 6 (manual setup and first live release) is pending the maintainer. The staged flow has not been exercised against the real registry yet.
 
 ## Approach
 
@@ -24,8 +24,17 @@ lockfile so `npm ci` is reproducible). The published tarball is unaffected:
 
 Authentication uses **npm trusted publishing (OIDC)**: the `release` job gets
 `id-token: write`, npm exchanges the workflow's OIDC identity for a
-short-lived publish credential, and provenance attestations are generated
-automatically. No `NPM_TOKEN` secret is stored. The job's only other
+short-lived credential, and provenance attestations are generated
+automatically. No `NPM_TOKEN` secret is stored (a stage-only token was
+considered and rejected, see Key Decisions).
+
+Publishing is **staged**: the job runs `npm stage publish`, which uploads the
+version without making it public, and a maintainer promotes it with
+`npm stage approve <stage-id>` (2FA). `@semantic-release/npm` has no staging
+option, so it runs with `npmPublish: false` (it only sets the version and
+packs the tarball) and `@semantic-release/exec` runs the stage command in the
+`publish` step. Staging needs npm >= 11.15.0, so the `release` job upgrades
+npm explicitly (Node 24 bundles an older npm). The job's only other
 permission is `contents: write` (tags and GitHub Releases).
 
 Semantic-release configuration lives in `js/.releaserc.json`:
@@ -34,7 +43,7 @@ Semantic-release configuration lives in `js/.releaserc.json`:
 - `tagFormat: "js-v${version}"`, so JS tags never collide with a future
   Python release tag scheme.
 - Plugins: `commit-analyzer` (Angular preset), `release-notes-generator`,
-  `npm`, `github` (with `successComment` / `failComment` disabled so no
+  `npm` (`npmPublish: false`), `exec` (`npm stage publish`), `github` (with `successComment` / `failComment` disabled so no
   issue/PR write permission is needed). No `git` or `changelog` plugin: the
   release never commits back to `main`, which keeps branch protection simple
   and honors the spec's out-of-scope item.
@@ -87,10 +96,17 @@ Semantic-release configuration lives in `js/.releaserc.json`:
      Publisher** for `victorradael/spacekid`, workflow `js.yml`. This
      configuration is not verified on save; mistakes only surface at publish
      time.
+   - In the Trusted Publisher / package publishing settings, make sure the
+     trust relationship is allowed to stage (OIDC tokens can stage only if the
+     trust configuration permits it).
    - In GitHub, protect `main` (required `test` check) and restrict the
      workflow's default token to read-only.
    - After the first successful release, confirm no `NPM_TOKEN` secret
      exists, and revoke the bootstrap token on npmjs.com.
+   - For every release: a maintainer runs `npm stage list`, then
+     `npm stage approve <stage-id>` with 2FA. Staged versions share the semver
+     uniqueness index, so a failed or rejected stage must be rejected
+     (`npm stage reject`) before that version can be staged again.
 
 ## Key Decisions
 
@@ -105,6 +121,12 @@ Semantic-release configuration lives in `js/.releaserc.json`:
   change would silently be ignored or mis-released. release-please was
   rejected because it releases through a "release PR", which is a manual
   step the spec forbids. Trade-off: a small, older third-party plugin.
+- **Staged publishing with human 2FA approval.** npm is moving to require
+  proof of presence for publishing; stage-only tokens cannot publish directly.
+  The pipeline therefore only stages, and a maintainer approves. A stage-only
+  `NPM_TOKEN` secret was rejected: it is a long-lived secret and OIDC can
+  stage without one. Trade-off: a manual approval step, and the GitHub
+  Release and tag exist before the version is live on npm until approved.
 - **No commit-back to `main`.** `package.json` keeps its checked-in version
   as a placeholder; the real version is set in the published tarball and
   recorded in the git tag and GitHub Release. This avoids needing a bypass
@@ -164,3 +186,11 @@ Semantic-release configuration lives in `js/.releaserc.json`:
   revocation. Documented in the root `README.md`. Without the `js-v0.1.0`
   tag the first run would publish `1.0.0`, so the tag must exist before
   this lands on `main`.
+- **Step 7: staged publishing (revision).** Added `@semantic-release/exec`
+  (7.1.0, pinned), set `npmPublish: false` on the npm plugin, and added a
+  `publishCmd` of `npm stage publish --access public`. The `release` job now
+  runs `npm install -g npm@^11.15.0` before `npm ci`. This deviates from the
+  original "fully automatic publish" design because npm requires a 2FA
+  promotion for stage-only credentials. Not verified against the real
+  registry: the OIDC stage permission, the `exec` plugin's cwd and the
+  monorepo plugin's interaction with it are first proven by the first release.

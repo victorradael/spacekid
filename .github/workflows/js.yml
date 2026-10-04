@@ -47,6 +47,8 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org
           package-manager-cache: false
+      # `npm stage publish` needs npm >= 11.15.0; Node 24 bundles an older npm.
+      - run: npm install -g npm@^11.15.0
       - run: npm ci
       - run: npx semantic-release
         env:
