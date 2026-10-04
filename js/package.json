@@ -3,6 +3,12 @@
   "version": "0.1.0",
   "description": "A minimalist spec kit for agentic development.",
   "license": "MIT",
+  "keywords": [
+    "spec",
+    "agents",
+    "agentic-development",
+    "cli"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/victorradael/spacekid.git",
