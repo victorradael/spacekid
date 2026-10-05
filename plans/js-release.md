@@ -156,8 +156,9 @@ Semantic-release configuration lives in `js/.releaserc.json`:
   token, create tag `js-v0.1.0` on a commit in `main`'s history, then
   configure the trusted publisher and revoke the token. Releases continue
   from `0.x`.
-- **Package name.** `spacekid` is confirmed as the final name; the manual
-  bootstrap publish also reserves it.
+- **Package name.** `@radaeltech/spacekid` (scoped under the maintainer's
+  npm org; the GitHub repository stays `victorradael/spacekid`). The `spacekid`
+  binary name is unchanged. The manual bootstrap publish also reserves it.
 
 ## Implementation Notes
 
@@ -194,3 +195,10 @@ Semantic-release configuration lives in `js/.releaserc.json`:
   promotion for stage-only credentials. Not verified against the real
   registry: the OIDC stage permission, the `exec` plugin's cwd and the
   monorepo plugin's interaction with it are first proven by the first release.
+- **First live attempt (0.1.1) failed with E401 at `npm stage publish`.**
+  The package did not exist on npm yet (bootstrap never done), so no Trusted
+  Publisher could be configured and the OIDC exchange failed. The tag
+  `js-v0.1.1` had already been pushed by semantic-release (it tags before
+  publishing) and must be deleted before retrying. The package was also
+  renamed to `@radaeltech/spacekid`. Bootstrap now uses `npm login` (2FA)
+  with `--provenance=false`, no token.

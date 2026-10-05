@@ -63,9 +63,9 @@ The same command is available as an npm package (source in [`js/`](js/)).
 Run it on demand, or install it as a dev dependency:
 
 ```bash
-npx spacekid init
+npx @radaeltech/spacekid init
 # or
-npm install --save-dev spacekid
+npm install --save-dev @radaeltech/spacekid
 ```
 
 It scaffolds the same three files with the same rules; the project name is
@@ -178,7 +178,7 @@ publishing (OIDC) with provenance: no npm token is stored in the repository.
 The version only becomes public after a maintainer approves it:
 
 ```bash
-npm stage list spacekid
+npm stage list @radaeltech/spacekid
 npm stage approve <stage-id>   # prompts for 2FA
 # or: npm stage reject <stage-id>
 ```
@@ -187,9 +187,10 @@ Requires npm >= 11.15.0 and Node >= 22.14.
 
 ### One-time maintainer setup
 
-1. Publish `0.1.0` once by hand with a temporary, granular npm token (a
-   trusted publisher can only be added to a package that already exists),
-   then tag that commit: `git tag js-v0.1.0 <commit> && git push origin js-v0.1.0`.
+1. Publish `0.1.0` once by hand (a trusted publisher can only be added to a
+   package that already exists): check out the `js-v0.1.0` commit and run
+   `npm login` (2FA) then `npm publish --access public --provenance=false`
+   from `js/`. No token is needed. If the tag does not exist yet, create it: `git tag js-v0.1.0 <commit> && git push origin js-v0.1.0`.
 2. On npmjs.com, open the package settings and add a **Trusted Publisher**:
    GitHub Actions, repository `victorradael/spacekid`, workflow `js.yml`.
    npm does not validate this on save; mistakes only show up at publish time.
