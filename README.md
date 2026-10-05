@@ -63,9 +63,9 @@ The same command is available as an npm package (source in [`js/`](js/)).
 Run it on demand, or install it as a dev dependency:
 
 ```bash
-npx @radaeltech/spacekid init
+npx spacekid init
 # or
-npm install --save-dev @radaeltech/spacekid
+npm install --save-dev spacekid
 ```
 
 It scaffolds the same three files with the same rules; the project name is
@@ -178,7 +178,7 @@ publishing (OIDC) with provenance: no npm token is stored in the repository.
 The version only becomes public after a maintainer approves it:
 
 ```bash
-npm stage list @radaeltech/spacekid
+npm stage list spacekid
 npm stage approve <stage-id>   # prompts for 2FA
 # or: npm stage reject <stage-id>
 ```

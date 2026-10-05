@@ -156,9 +156,9 @@ Semantic-release configuration lives in `js/.releaserc.json`:
   token, create tag `js-v0.1.0` on a commit in `main`'s history, then
   configure the trusted publisher and revoke the token. Releases continue
   from `0.x`.
-- **Package name.** `@radaeltech/spacekid` (scoped under the maintainer's
-  npm org; the GitHub repository stays `victorradael/spacekid`). The `spacekid`
-  binary name is unchanged. The manual bootstrap publish also reserves it.
+- **Package name.** `spacekid` (unscoped, in the maintainer's personal npm
+  account) is the final name. A scoped `@radaeltech/spacekid` was tried and
+  reverted; the bootstrap publish already created `spacekid@0.1.0`.
 
 ## Implementation Notes
 
@@ -199,6 +199,6 @@ Semantic-release configuration lives in `js/.releaserc.json`:
   The package did not exist on npm yet (bootstrap never done), so no Trusted
   Publisher could be configured and the OIDC exchange failed. The tag
   `js-v0.1.1` had already been pushed by semantic-release (it tags before
-  publishing) and must be deleted before retrying. The package was also
-  renamed to `@radaeltech/spacekid`. Bootstrap now uses `npm login` (2FA)
+  publishing) and must be deleted before retrying. The package was briefly
+  renamed to a scoped name and then reverted to `spacekid`. Bootstrap used `npm login` (2FA)
   with `--provenance=false`, no token.
