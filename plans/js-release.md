@@ -202,3 +202,9 @@ Semantic-release configuration lives in `js/.releaserc.json`:
   publishing) and must be deleted before retrying. The package was briefly
   renamed to a scoped name and then reverted to `spacekid`. Bootstrap used `npm login` (2FA)
   with `--provenance=false`, no token.
+- **Stage moved from `publish` to `prepare`.** semantic-release creates and
+  pushes the tag before the `publish` step, so each failed stage left an
+  orphan tag (`js-v0.1.1` to `js-v0.1.4`) and bumped the next version. The
+  stage command now runs as `prepareCmd` (after the npm plugin sets the
+  version, before the tag), so a failed stage leaves no tag. `--loglevel
+  verbose` was added temporarily to diagnose the persistent `E401`.

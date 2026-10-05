@@ -8,7 +8,7 @@
     ["@semantic-release/npm", { "npmPublish": false }],
     [
       "@semantic-release/exec",
-      { "publishCmd": "npm stage publish --access public" }
+      { "prepareCmd": "npm stage publish --access public --loglevel verbose" }
     ],
     [
       "@semantic-release/github",
