@@ -208,3 +208,10 @@ Semantic-release configuration lives in `js/.releaserc.json`:
   stage command now runs as `prepareCmd` (after the npm plugin sets the
   version, before the tag), so a failed stage leaves no tag. `--loglevel
   verbose` was added temporarily to diagnose the persistent `E401`.
+- **Repository must be public.** After the Trusted Publisher was configured,
+  the OIDC exchange succeeded but `npm stage publish` failed with `E422`:
+  npm only accepts provenance for public source repositories, and this
+  repository was private. The repository is being made public (provenance is
+  a spec requirement), and the root `README.md` now states that the project
+  is a personal study effort. Remove `--loglevel verbose` from the `exec`
+  `prepareCmd` once the first stage succeeds.

@@ -5,6 +5,21 @@ A minimalist spec kit for agentic development. The name is a play on
 humans) working from a single, closed development loop instead of ad-hoc
 prompting.
 
+## Project status
+
+> **This is a personal study project, not a production-ready tool.**
+
+SpaceKid is built as a hands-on way to learn and evolve my own knowledge of
+AI-assisted software development. The repository is public so the work can be
+read, tried and discussed, and so the npm package can be published with
+verifiable provenance, but it is **an object of study and personal
+development**, not a supported product.
+
+The long-term ambition is to grow it into a full agentic workflow. Today it
+is only the first piece: a spec/plan/implement/update loop and a command that
+scaffolds it. Expect rough edges, breaking changes and shifting ideas, with
+no stability or support guarantees.
+
 ## Install
 
 SpaceKid isn't published on PyPI yet, so install it straight from GitHub.
