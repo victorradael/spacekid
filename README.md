@@ -89,6 +89,27 @@ current directory:
 Run `spacekid init --path <dir>` to scaffold a different directory than the
 current one.
 
+### Brain mode
+
+When the directory holds several repositories side by side (two or more
+child folders with their own `.git`, and no `.git` in the directory itself),
+`spacekid init` switches to brain mode on its own and prints the mode it
+chose. Force either mode with `--mode project` or `--mode brain`.
+
+Brain mode creates a `brain/` folder:
+
+- `brain/AGENTS.md` — folder map, the placement rule (knowledge goes to
+  `contexts/`, every other generated file to `artifacts/`), and the flow,
+  which starts with a mandatory context step before any work.
+- `brain/contexts/` — knowledge produced while working.
+- `brain/artifacts/` — everything else generated along the way.
+- `brain/sdd/specs/AGENTS.md` and `brain/sdd/plans/AGENTS.md` — the same
+  spec and plan rules as project mode.
+
+Existing files follow the same rules as project mode: `brain/AGENTS.md` is
+left untouched, the `sdd` rule files are appended to, and each file's outcome
+is reported. Empty folders hold a `.gitkeep` so they survive version control.
+
 ### Migrating from the npm package
 
 The `spacekid` npm package is retired and no longer built or published. Use

@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from spacekid.scaffold import scaffold
+from spacekid.scaffold import detect_mode, scaffold, scaffold_brain
 
 _STATUS_LABEL = {
     "created": "created",
@@ -16,7 +16,10 @@ _STATUS_LABEL = {
 
 def _init(args: argparse.Namespace) -> int:
     project_root = Path(args.path).resolve()
-    results = scaffold(project_root, app_name=args.name)
+    mode = detect_mode(project_root) if args.mode == "auto" else args.mode
+    print(f"mode: {mode}")
+    run = scaffold_brain if mode == "brain" else scaffold
+    results = run(project_root, app_name=args.name)
     for result in results:
         rel = result.path.relative_to(project_root)
         print(f"{_STATUS_LABEL[result.status]}: {rel}")
@@ -35,6 +38,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     init_parser.add_argument(
         "--name", default=None, help="project name for AGENTS.md (default: auto-detected)"
+    )
+    init_parser.add_argument(
+        "--mode",
+        choices=["auto", "project", "brain"],
+        default="auto",
+        help="usage mode: project, brain (multi-repo directory), or auto-detect (default)",
     )
     init_parser.set_defaults(func=_init)
 

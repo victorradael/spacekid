@@ -65,3 +65,27 @@ def scaffold(project_root: Path, app_name: str | None = None) -> list[FileResult
         write_or_append(project_root / "plans" / "AGENTS.md", _load_template("plans_agents.md")),
     ]
     return results
+
+
+def detect_mode(path: Path) -> str:
+    """Return "brain" for a non-repo directory holding two or more repos, else "project"."""
+    path = Path(path)
+    if (path / ".git").exists():
+        return "project"
+    repos = [c for c in path.iterdir() if c.is_dir() and (c / ".git").exists()]
+    return "brain" if len(repos) >= 2 else "project"
+
+
+def scaffold_brain(root: Path, app_name: str | None = None) -> list[FileResult]:
+    root = Path(root)
+    brain = root / "brain"
+    resolved_name = app_name or detect_app_name(root)
+    brain_agents = _load_template("brain_agents.md").replace(_APP_NAME_PLACEHOLDER, resolved_name)
+
+    return [
+        write_or_skip(brain / "AGENTS.md", brain_agents),
+        write_or_append(brain / "sdd" / "specs" / "AGENTS.md", _load_template("specs_agents.md")),
+        write_or_append(brain / "sdd" / "plans" / "AGENTS.md", _load_template("plans_agents.md")),
+        write_or_skip(brain / "contexts" / ".gitkeep", ""),
+        write_or_skip(brain / "artifacts" / ".gitkeep", ""),
+    ]
