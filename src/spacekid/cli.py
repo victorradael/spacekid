@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from importlib.metadata import version
 from pathlib import Path
 
 from spacekid.scaffold import detect_mode, scaffold, scaffold_brain
@@ -28,6 +29,7 @@ def _init(args: argparse.Namespace) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="spacekid")
+    parser.add_argument("--version", action="version", version=f"%(prog)s {version('spacekid')}")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     init_parser = subparsers.add_parser(

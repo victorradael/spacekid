@@ -12,3 +12,13 @@ def test_spacekid_and_sk_resolve_to_the_same_callable() -> None:
 
     assert scripts["spacekid"] == scripts["sk"] == "spacekid.cli:main"
     assert cli.main is not None
+
+
+def test_version_flag_reports_installed_version(capsys: pytest.CaptureFixture[str]) -> None:
+    from importlib.metadata import version
+
+    with pytest.raises(SystemExit) as exc:
+        cli.main(["--version"])
+
+    assert exc.value.code == 0
+    assert capsys.readouterr().out.strip() == f"spacekid {version('spacekid')}"

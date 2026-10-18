@@ -56,16 +56,20 @@ No local install beyond a container runtime. Run it from your project
 directory, passing your user id so created files belong to you, not to root:
 
 ```bash
-docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/project" ghcr.io/victorradael/spacekid init
+docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/project" <dockerhub-user>/spacekid init
 ```
 
-Pin a version by using its tag instead of `latest`:
+The image is published on Docker Hub. Pin as tightly or loosely as you want:
+
+- `<dockerhub-user>/spacekid:1.2.3` — an exact release.
+- `<dockerhub-user>/spacekid:1.2` — the latest patch of that minor version.
+- `<dockerhub-user>/spacekid:latest` — the most recent release.
 
 ```bash
-docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/project" ghcr.io/victorradael/spacekid:0.1.0 init
+docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/project" <dockerhub-user>/spacekid:1.2.3 init
 ```
 
-A new image is published automatically for every release (`vX.Y.Z` tag).
+`spacekid --version` inside the image reports the release version.
 
 ## Usage
 
@@ -114,7 +118,7 @@ is reported. Empty folders hold a `.gitkeep` so they survive version control.
 
 The `spacekid` npm package is retired and no longer built or published. Use
 either option above instead: `npx spacekid init` becomes
-`docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/project" ghcr.io/victorradael/spacekid init`
+`docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/project" <dockerhub-user>/spacekid init`
 (or `pipx install ...` once, then `spacekid init`). The scaffolded files are
 the same, and the tool works on JavaScript/TypeScript projects too.
 
@@ -208,9 +212,30 @@ does. A closed, file-based loop means:
 
 ## Releasing
 
-Versions are bumped manually in `pyproject.toml`. Pushing a tag `vX.Y.Z`
-matching that version builds the container image and publishes it to GHCR as
-`:X.Y.Z` and `:latest`.
+Releases are automatic. Every push to `main` is evaluated from its commit
+messages ([Conventional Commits](https://www.conventionalcommits.org/)); if a
+user-visible change is found, a GitHub Release with generated notes is
+created and the image is published to Docker Hub.
+
+| Commit | Effect |
+|---|---|
+| `fix: ...` | patch release (`1.2.3` → `1.2.4`) |
+| `feat: ...` | minor release (`1.2.3` → `1.3.0`) |
+| `BREAKING CHANGE:` footer (or `feat!:`) | major release (`1.2.3` → `2.0.0`) |
+| `docs:`, `test:`, `chore:`, `ci:`, `refactor:` | no release |
+
+Pull requests are built and smoke-tested without publishing anything. A
+failed release shows as a failed run of the `docker` workflow, which GitHub
+notifies maintainers about.
+
+### One-time setup (maintainers)
+
+- Tag the current `main` commit `v0.1.0` and push it, so the first automated
+  release continues the numbering instead of starting at `1.0.0`.
+- Create the `spacekid` repository on Docker Hub.
+- Add the secrets `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` (an access token
+  scoped to that repository only), ideally in a `production` environment.
+- Protect `main` and require the `test` check.
 
 ## Language
 

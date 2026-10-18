@@ -66,3 +66,6 @@ All steps done. Deviations:
   ownership via `docker run -u`. The publish job has not run against GHCR yet.
 - Pending maintainer action: `npm deprecate` on the published package with a
   pointer to the new usage.
+- Superseded in part by `plans/release-pipeline.md`: the image is now
+  published to Docker Hub (not GHCR), and versions are derived from commit
+  messages by `semantic-release` instead of being bumped manually.
