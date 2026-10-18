@@ -1,7 +1,7 @@
 # JS Package Automated Release — Implementation Plan
 
 Implements: `specs/js-release.md`
-Status: Implemented in code (steps 0–5), then revised for npm staged publishing (step 7, see Implementation Notes). Step 6 (manual setup and first live release) is pending the maintainer. The staged flow has not been exercised against the real registry yet.
+Status: Superseded (the JavaScript/TypeScript distribution was retired)
 
 ## Approach
 

@@ -4,7 +4,7 @@ updates:
     directory: /
     schedule:
       interval: weekly
-  - package-ecosystem: npm
-    directory: /js
+  - package-ecosystem: docker
+    directory: /
     schedule:
       interval: weekly

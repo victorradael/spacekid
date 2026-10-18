@@ -11,8 +11,7 @@ prompting.
 
 SpaceKid is built as a hands-on way to learn and evolve my own knowledge of
 AI-assisted software development. The repository is public so the work can be
-read, tried and discussed, and so the npm package can be published with
-verifiable provenance, but it is **an object of study and personal
+read, tried and discussed, but it is **an object of study and personal
 development**, not a supported product.
 
 The long-term ambition is to grow it into a full agentic workflow. Today it
@@ -22,37 +21,55 @@ no stability or support guarantees.
 
 ## Install
 
+SpaceKid is a command-line tool, not a library your code imports. It works on
+projects in any language and is available in two ways: installed with Python,
+or run from a container image. Both answer the same commands with the same
+results.
+
+### Option 1: install with Python
+
 SpaceKid isn't published on PyPI yet, so install it straight from GitHub.
-It's a command-line tool, not a library your code imports, so `pipx` is the
-recommended way to get it — it installs `spacekid` in its own isolated
-environment and puts the command on your `PATH`, without touching the
-virtualenv of whatever project you run it in:
+`pipx` is recommended: it installs the tool in its own isolated environment
+and puts it on your `PATH`.
 
 ```bash
 pipx install git+https://github.com/victorradael/spacekid.git
 ```
 
-Alternatively, install it into a project's own virtualenv with `pip`:
+or, with `pip`:
 
 ```bash
 pip install git+https://github.com/victorradael/spacekid.git
 ```
 
-Or pin it as a dev dependency in that project's `pyproject.toml`:
+Pin a version by appending a tag, e.g. `@v0.1.0`:
 
-```toml
-[dependency-groups]
-dev = ["spacekid @ git+https://github.com/victorradael/spacekid.git"]
+```bash
+pipx install git+https://github.com/victorradael/spacekid.git@v0.1.0
 ```
 
-If the repository is private, use the SSH form instead of `https://` on any
-of the above (requires an SSH key registered with GitHub):
+Both `spacekid` and the shorter `sk` are installed and behave identically.
 
-```
-git+ssh://git@github.com/victorradael/spacekid.git
+### Option 2: run with Docker
+
+No local install beyond a container runtime. Run it from your project
+directory, passing your user id so created files belong to you, not to root:
+
+```bash
+docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/project" ghcr.io/victorradael/spacekid init
 ```
 
-Then, from the root of the Python project you want to adopt the workflow in:
+Pin a version by using its tag instead of `latest`:
+
+```bash
+docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/project" ghcr.io/victorradael/spacekid:0.1.0 init
+```
+
+A new image is published automatically for every release (`vX.Y.Z` tag).
+
+## Usage
+
+From the root of the project you want to adopt the workflow in:
 
 ```bash
 spacekid init
@@ -72,20 +89,13 @@ current directory:
 Run `spacekid init --path <dir>` to scaffold a different directory than the
 current one.
 
-### JavaScript / TypeScript projects
+### Migrating from the npm package
 
-The same command is available as an npm package (source in [`js/`](js/)).
-Run it on demand, or install it as a dev dependency:
-
-```bash
-npx spacekid init
-# or
-npm install --save-dev spacekid
-```
-
-It scaffolds the same three files with the same rules; the project name is
-detected from `package.json` (or the directory name). Node 20 or newer is
-required. The package ships its own TypeScript type definitions.
+The `spacekid` npm package is retired and no longer built or published. Use
+either option above instead: `npx spacekid init` becomes
+`docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/project" ghcr.io/victorradael/spacekid init`
+(or `pipx install ...` once, then `spacekid init`). The scaffolded files are
+the same, and the tool works on JavaScript/TypeScript projects too.
 
 ## Why a closed loop
 
@@ -171,49 +181,15 @@ does. A closed, file-based loop means:
 /specs/<name>.md      # one per feature, business-only
 /plans/AGENTS.md     # how to write a good implementation plan
 /plans/<name>.md      # one per spec, technical design + status
-/js/                 # npm package (spacekid init)
+/src/spacekid/      # the CLI (single implementation)
+/Dockerfile          # container image wrapping the CLI
 ```
 
-## Releasing the npm package
+## Releasing
 
-Releases are automatic. Every push to `main` runs the tests and then
-[semantic-release](https://semantic-release.gitbook.io/), which looks only at
-commits that touch `js/` and stages a release on npm when one deserves it. A
-maintainer then promotes the staged version (see below):
-
-- `fix:` → patch
-- `feat:` → minor
-- a `BREAKING CHANGE:` footer in the commit body → major (the `feat!:`
-  shorthand is **not** recognized; the footer is required)
-
-Anything else (Python-only changes, docs, tests, specs, plans) publishes
-nothing. Tags are named `js-vX.Y.Z` and each one gets a GitHub Release with
-generated notes. The pipeline runs `npm stage publish` using npm trusted
-publishing (OIDC) with provenance: no npm token is stored in the repository.
-The version only becomes public after a maintainer approves it:
-
-```bash
-npm stage list spacekid
-npm stage approve <stage-id>   # prompts for 2FA
-# or: npm stage reject <stage-id>
-```
-
-Requires npm >= 11.15.0 and Node >= 22.14.
-
-### One-time maintainer setup
-
-1. Publish `0.1.0` once by hand (a trusted publisher can only be added to a
-   package that already exists): check out the `js-v0.1.0` commit and run
-   `npm login` (2FA) then `npm publish --access public --provenance=false`
-   from `js/`. No token is needed. If the tag does not exist yet, create it: `git tag js-v0.1.0 <commit> && git push origin js-v0.1.0`.
-2. On npmjs.com, open the package settings and add a **Trusted Publisher**:
-   GitHub Actions, repository `victorradael/spacekid`, workflow `js.yml`.
-   npm does not validate this on save; mistakes only show up at publish time.
-3. In GitHub, protect `main` (require the `test` checks) and set the
-   workflow's default token permissions to read-only.
-   Also confirm the Trusted Publisher is allowed to stage versions.
-4. After the first automated release succeeds, revoke the temporary npm token
-   and confirm no `NPM_TOKEN` secret exists in the repository.
+Versions are bumped manually in `pyproject.toml`. Pushing a tag `vX.Y.Z`
+matching that version builds the container image and publishes it to GHCR as
+`:X.Y.Z` and `:latest`.
 
 ## Language
 

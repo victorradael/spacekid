@@ -1,6 +1,6 @@
 # JS Package Automated Release
 
-Status: Implemented, awaiting first live release (requires one-time maintainer setup). Revised: publishing is now staged and a maintainer approves each version with two-factor authentication, so it is no longer fully manual-step-free.
+Status: Superseded (the JavaScript/TypeScript distribution was retired)
 
 ## Context
 

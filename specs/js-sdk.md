@@ -1,6 +1,6 @@
 # JS SDK
 
-Status: Implemented
+Status: Superseded (the JavaScript/TypeScript distribution was retired)
 
 ## Context
 

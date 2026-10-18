@@ -1,7 +1,7 @@
 # JS SDK — Implementation Plan
 
 Implements: `specs/js-sdk.md`
-Status: Done
+Status: Superseded (the JavaScript/TypeScript distribution was retired)
 
 ## Approach
 
