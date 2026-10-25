@@ -262,11 +262,23 @@ without digging through chat history.
 
 **`docker pull` fails or stops midway** (for example `connection reset by
 peer`).
-This is a network interruption, not a SpaceKid problem. Run `docker pull
-victorradael/spacekid` again: layers already downloaded are kept, so it
-resumes. If it keeps failing, wait a few minutes, try another network, or
-temporarily disable IPv6 (`sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1`,
-and set it back to `0` afterwards). To skip Docker entirely, use the
+Run `docker pull victorradael/spacekid` again: layers already downloaded are
+kept, so it resumes. If it keeps failing with an IPv6 address in the error
+(like `[2600:9000:...]:443`), your IPv6 route to Docker is broken. Disable
+IPv6, pull, then turn it back on (replace `wlp0s20f3` with your interface
+from `ip -br link show up`):
+
+```bash
+# disable IPv6
+sudo sysctl -w net.ipv6.conf.wlp0s20f3.disable_ipv6=1
+
+docker pull victorradael/spacekid
+
+# revert (enable IPv6 again)
+sudo sysctl -w net.ipv6.conf.wlp0s20f3.disable_ipv6=0
+```
+
+Rebooting also reverts it. To skip Docker entirely, use the
 [Python install](#with-python).
 
 **`spacekid: command not found` after the Quick start.**

@@ -110,3 +110,13 @@ Implemented as planned, with these notes:
 - **Docker Hub page.** The old "shell alias" tip was removed; the quick start
   now carries the alias, and pull-retry guidance is a short note there. The
   IPv6 workaround lives only in the README troubleshooting.
+
+### Revision notes — IPv6 pull failure
+
+- The README troubleshooting entry for `docker pull` now has a short IPv6
+  procedure: disable IPv6 on the interface with `sysctl`, pull, then revert
+  with the same command set back to `0`. It notes that a reboot also reverts.
+- Reported and confirmed on a real machine: IPv6 to the Docker CloudFront
+  host was reset, IPv4 worked, and disabling IPv6 fixed the pull.
+- `DOCKERHUB.md` is unchanged: it keeps only the short retry note and the
+  IPv6 detail stays in the README, as before.

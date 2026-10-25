@@ -85,6 +85,8 @@ sites they arrive from.
 - [x] Every part of the long form of the container command is explained.
 - [x] Failed or interrupted image downloads are covered in troubleshooting,
       with a fallback that does not need the container.
+- [x] When a download fails because of a broken IPv6 route, troubleshooting
+      gives a temporary workaround and an explicit step to undo it.
 
 ## Out of Scope
 
