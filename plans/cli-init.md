@@ -95,4 +95,7 @@ init` again on the same directory correctly skips the existing root
 `AGENTS.md` and appends to `specs/AGENTS.md` / `plans/AGENTS.md`. All 6
 `tests/test_scaffold.py` cases pass.
 
+Later change: `write_or_append` now skips files that already contain the
+standard content, so repeated runs no longer append it again.
+
 No deviation from the planned design otherwise.

@@ -47,6 +47,8 @@ def write_or_skip(path: Path, content: str) -> FileResult:
 
 def write_or_append(path: Path, content: str) -> FileResult:
     if path.exists():
+        if content.strip() in path.read_text(encoding="utf-8"):
+            return FileResult(path, "skipped")
         with path.open("a", encoding="utf-8") as f:
             f.write("\n" + content)
         return FileResult(path, "appended")

@@ -111,5 +111,8 @@ All steps done, with these deviations and caveats:
   so the final version assertion can run the pushed image locally.
 - Docs-only changes still trigger the `release` job, which exits without a
   release; `publish` is skipped.
-- The README uses `<dockerhub-user>` as a placeholder because the Docker Hub
-  account name is not recorded in the repository.
+- The README originally used `<dockerhub-user>` as a placeholder because the
+  Docker Hub account name was not recorded in the repository. Superseded: the
+  user documentation now uses `victorradael/spacekid`, the release process and
+  one-time setup moved to `MAINTAINING.md`, and the `publish` job also syncs
+  `DOCKERHUB.md` to the Docker Hub page (token needs Read, Write, Delete).

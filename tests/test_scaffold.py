@@ -172,3 +172,42 @@ def test_cli_auto_selects_brain_for_multi_repo_directory(tmp_path: Path) -> None
     cli.main(["init", "--path", str(tmp_path)])
 
     assert (tmp_path / "brain" / "AGENTS.md").is_file()
+
+
+def _snapshot(root: Path) -> dict[str, str]:
+    return {
+        str(p.relative_to(root)): p.read_text(encoding="utf-8")
+        for p in sorted(root.rglob("*"))
+        if p.is_file()
+    }
+
+
+def test_project_second_run_changes_nothing(tmp_path: Path) -> None:
+    scaffold(tmp_path)
+    before = _snapshot(tmp_path)
+
+    results = scaffold(tmp_path)
+
+    assert {r.status for r in results} == {"skipped"}
+    assert _snapshot(tmp_path) == before
+
+
+def test_brain_second_run_changes_nothing(tmp_path: Path) -> None:
+    scaffold_brain(tmp_path)
+    before = _snapshot(tmp_path)
+
+    results = scaffold_brain(tmp_path)
+
+    assert {r.status for r in results} == {"skipped"}
+    assert _snapshot(tmp_path) == before
+
+
+def test_user_edits_around_the_rules_do_not_trigger_another_append(tmp_path: Path) -> None:
+    scaffold(tmp_path)
+    path = tmp_path / "specs" / "AGENTS.md"
+    edited = "# Mine\n\n" + path.read_text(encoding="utf-8") + "\nextra notes\n"
+    path.write_text(edited, encoding="utf-8")
+
+    scaffold(tmp_path)
+
+    assert path.read_text(encoding="utf-8") == edited

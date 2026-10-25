@@ -45,8 +45,9 @@ file copying.
   with the standard content.
 - Running the command again on a project that already has all three files
   fully set up must not duplicate the appended content endlessly — running
-  it twice back to back should not corrupt the files, even though appending
-  guidance content twice is not itself harmful.
+  it twice back to back should not corrupt the files. Update: repeated runs
+  now leave already scaffolded files unchanged; the standard content is no
+  longer appended a second time.
 
 ## Acceptance Criteria
 

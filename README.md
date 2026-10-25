@@ -1,150 +1,219 @@
-![SpaceKid](./assets/spacekid_logo.jpg)
+![SpaceKid](https://raw.githubusercontent.com/victorradael/spacekid/main/assets/spacekid_logo.jpg)
 
-A minimalist spec kit for agentic development. The name is a play on
-*"spec kit"* — a small, opinionated set of files that keeps AI agents (and
-humans) working from a single, closed development loop instead of ad-hoc
-prompting.
+A minimalist spec kit for agentic development. One command drops a small set
+of `AGENTS.md` files into your project so AI agents (and humans) work from a
+single closed loop — **spec → plan → implementation → update** — instead of
+ad-hoc prompting. It works on projects in any language.
 
-## Project status
+> **Study project.** SpaceKid is a personal project built to learn and evolve
+> my own knowledge of AI-assisted development. It is public so it can be read,
+> tried and discussed, but it is not a supported product: expect rough edges,
+> breaking changes and no stability guarantees.
 
-> **This is a personal study project, not a production-ready tool.**
+## Quick start
 
-SpaceKid is built as a hands-on way to learn and evolve my own knowledge of
-AI-assisted software development. The repository is public so the work can be
-read, tried and discussed, but it is **an object of study and personal
-development**, not a supported product.
+From the root of your project (needs only [Docker](https://docs.docker.com/get-docker/)):
 
-The long-term ambition is to grow it into a full agentic workflow. Today it
-is only the first piece: a spec/plan/implement/update loop and a command that
-scaffolds it. Expect rough edges, breaking changes and shifting ideas, with
-no stability or support guarantees.
+```bash
+docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/project" victorradael/spacekid init
+```
+
+Output:
+
+```
+mode: project
+created: AGENTS.md
+created: specs/AGENTS.md
+created: plans/AGENTS.md
+```
+
+You now have an `AGENTS.md` entry point plus the rules for writing specs and
+plans. Point your agent at `AGENTS.md` and start with your first spec — see
+[The working loop](#the-working-loop).
+
+Prefer a local install? See [Install](#install).
 
 ## Install
 
-SpaceKid is a command-line tool, not a library your code imports. It works on
-projects in any language and is available in two ways: installed with Python,
-or run from a container image. Both answer the same commands with the same
-results.
+SpaceKid is a command-line tool, not a library. Pick one way; both give the
+same commands and results.
 
-### Option 1: install with Python
+### With Docker
 
-SpaceKid isn't published on PyPI yet, so install it straight from GitHub.
-`pipx` is recommended: it installs the tool in its own isolated environment
-and puts it on your `PATH`.
+```bash
+docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/project" victorradael/spacekid init
+```
+
+- `-v "$PWD:/project"` mounts the current directory as the project.
+- `-u "$(id -u):$(id -g)"` makes created files belong to you instead of
+  another user (see [Troubleshooting](#troubleshooting)).
+
+Pin a version with an image tag:
+
+| Tag | Meaning |
+|---|---|
+| `victorradael/spacekid:1.2.3` | an exact release |
+| `victorradael/spacekid:1.2` | the latest patch of that minor version |
+| `victorradael/spacekid:latest` | the most recent release |
+
+```bash
+docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/project" victorradael/spacekid:1.2.3 init
+```
+
+Tip: add an alias to your shell profile.
+
+```bash
+alias spacekid='docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/project" victorradael/spacekid'
+```
+
+### With Python
+
+SpaceKid is not on PyPI yet, so install it from GitHub. `pipx` is recommended:
+it installs the tool in its own environment and puts it on your `PATH`.
 
 ```bash
 pipx install git+https://github.com/victorradael/spacekid.git
 ```
 
-or, with `pip`:
+or with `pip`:
 
 ```bash
 pip install git+https://github.com/victorradael/spacekid.git
 ```
 
-Pin a version by appending a tag, e.g. `@v0.1.0`:
+Pin a version by appending a release tag:
 
 ```bash
 pipx install git+https://github.com/victorradael/spacekid.git@v0.1.0
 ```
 
 Both `spacekid` and the shorter `sk` are installed and behave identically.
+Check the install with `spacekid --version`.
 
-### Option 2: run with Docker
+## Commands and options
 
-No local install beyond a container runtime. Run it from your project
-directory, passing your user id so created files belong to you, not to root:
-
-```bash
-docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/project" <dockerhub-user>/spacekid init
+```
+spacekid [--version] [-h] init [--path PATH] [--name NAME] [--mode {auto,project,brain}]
 ```
 
-The image is published on Docker Hub. Pin as tightly or loosely as you want:
+| Command / option | Description |
+|---|---|
+| `--version` | Print the installed version and exit. |
+| `-h`, `--help` | Show help. Also works after `init`. |
+| `init` | Scaffold the SpaceKid files. The only command. |
+| `init --path PATH` | Directory to scaffold into. It must already exist. Default: current directory. |
+| `init --name NAME` | Project name written into `AGENTS.md`. Default: the `name` in `pyproject.toml` if present, otherwise the directory name. |
+| `init --mode MODE` | `project`, `brain`, or `auto` (default). See [Choosing a mode](#choosing-a-mode). |
 
-- `<dockerhub-user>/spacekid:1.2.3` — an exact release.
-- `<dockerhub-user>/spacekid:1.2` — the latest patch of that minor version.
-- `<dockerhub-user>/spacekid:latest` — the most recent release.
-
-```bash
-docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/project" <dockerhub-user>/spacekid:1.2.3 init
-```
-
-`spacekid --version` inside the image reports the release version.
-
-## Usage
-
-From the root of the project you want to adopt the workflow in:
+With Docker, put the options after `init`; use `-v` to mount the directory you
+want to scaffold, and `--path` is rarely needed:
 
 ```bash
-spacekid init
+docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/project" victorradael/spacekid init --name "My App"
 ```
 
-This scaffolds `AGENTS.md`, `specs/AGENTS.md`, and `plans/AGENTS.md` in the
-current directory:
+## Choosing a mode
 
-- `AGENTS.md` is created with the project's name filled in (detected from
-  `pyproject.toml`, or the directory name otherwise — pass `--name` to set
-  it explicitly). If the project already has an `AGENTS.md`, it's left
-  untouched.
-- `specs/AGENTS.md` and `plans/AGENTS.md` are created if missing; if either
-  already exists, the standard SpaceKid content is appended to the end of
-  it instead of overwriting it.
+SpaceKid has two modes.
 
-Run `spacekid init --path <dir>` to scaffold a different directory than the
-current one.
+- **Project mode** — for a single repository. Adds the workflow files at the
+  project root.
+- **Brain mode** — for a folder that holds several repositories side by side.
+  Adds a `brain/` folder that coordinates work across them.
+
+With `--mode auto` (the default), `init` picks for you and prints the choice
+on its first line:
+
+1. If the directory itself has a `.git`, it is **project** mode.
+2. Otherwise, if two or more of its direct child folders have a `.git`, it is
+   **brain** mode.
+3. Anything else is **project** mode.
+
+Force a mode with `--mode project` or `--mode brain`.
+
+### Project mode
+
+```
+my-app/
+├── AGENTS.md          # entry point: file map, the cycle, the update rule
+├── specs/
+│   └── AGENTS.md      # how to write a spec
+└── plans/
+    └── AGENTS.md      # how to write an implementation plan
+```
+
+```
+$ spacekid init
+mode: project
+created: AGENTS.md
+created: specs/AGENTS.md
+created: plans/AGENTS.md
+```
 
 ### Brain mode
 
-When the directory holds several repositories side by side (two or more
-child folders with their own `.git`, and no `.git` in the directory itself),
-`spacekid init` switches to brain mode on its own and prints the mode it
-chose. Force either mode with `--mode project` or `--mode brain`.
+For a layout like this (`api` and `web` are git repositories, the parent is
+not):
 
-Brain mode creates a `brain/` folder:
+```
+workspace/
+├── api/.git
+└── web/.git
+```
 
-- `brain/AGENTS.md` — folder map, the placement rule (knowledge goes to
-  `contexts/`, every other generated file to `artifacts/`), and the flow,
-  which starts with a mandatory context step before any work.
-- `brain/contexts/` — knowledge produced while working.
-- `brain/artifacts/` — everything else generated along the way.
-- `brain/sdd/specs/AGENTS.md` and `brain/sdd/plans/AGENTS.md` — the same
-  spec and plan rules as project mode.
+```
+$ spacekid init
+mode: brain
+created: brain/AGENTS.md
+created: brain/sdd/specs/AGENTS.md
+created: brain/sdd/plans/AGENTS.md
+created: brain/contexts/.gitkeep
+created: brain/artifacts/.gitkeep
+```
 
-Existing files follow the same rules as project mode: `brain/AGENTS.md` is
-left untouched, the `sdd` rule files are appended to, and each file's outcome
-is reported. Empty folders hold a `.gitkeep` so they survive version control.
+```
+workspace/
+├── api/
+├── web/
+└── brain/
+    ├── AGENTS.md          # folder map, placement rule, and the flow
+    ├── contexts/          # knowledge produced while working
+    ├── artifacts/         # every other generated file
+    └── sdd/
+        ├── specs/AGENTS.md
+        └── plans/AGENTS.md
+```
 
-### Migrating from the npm package
+`brain/AGENTS.md` sets the placement rule (knowledge goes to `contexts/`,
+every other generated file to `artifacts/`) and a flow that starts with a
+mandatory context step before any work. The `.gitkeep` files keep the empty
+folders in version control.
 
-The `spacekid` npm package is retired and no longer built or published. Use
-either option above instead: `npx spacekid init` becomes
-`docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/project" <dockerhub-user>/spacekid init`
-(or `pipx install ...` once, then `spacekid init`). The scaffolded files are
-the same, and the tool works on JavaScript/TypeScript projects too.
+## Existing files and repeated runs
 
-## Why a closed loop
+`init` never deletes or overwrites your content. For each file it reports one
+of three outcomes:
 
-Agentic coding tends to drift: an agent starts implementing before the
-requirements are pinned down, technical decisions leak into what should be a
-business document, and nothing records *why* the final implementation
-differs from the original intent. Six months later, no file tells you what
-was actually decided or why.
-
-SpaceKid fixes this by making the workflow a **closed cycle across three
-kinds of files**, each with exactly one job:
-
-| File | Role | Contains |
+| Message | When | What happened |
 |---|---|---|
-| `specs/<name>.md` | **What & why** | Business context, requirements, acceptance criteria. No code. |
-| `plans/<name>.md` | **How** | Technical design that satisfies the spec — KISS, SOLID, scalability, maintainability. |
-| `AGENTS.md` | **Rules of the loop** | How agents navigate the repo and how the cycle must be followed. |
+| `created: <file>` | the file did not exist | written from the template |
+| `appended to: <file>` | `specs/AGENTS.md`, `plans/AGENTS.md` (and their brain-mode equivalents) exist but do not contain the SpaceKid rules | the standard rules were added to the end; your content is kept |
+| `skipped (already exists): <file>` | the file exists and needs nothing: `AGENTS.md`, `brain/AGENTS.md`, the `.gitkeep` files, or a rule file that already contains the SpaceKid rules | left untouched |
 
-Each file only points in one direction: a plan may reference its spec, a
-spec never references anything, and after implementation both loop back to
-record their final status. This one-way referencing keeps specs readable in
-isolation and prevents circular, tangled documentation.
+Running `init` again is safe: a project that is already scaffolded is left
+exactly as it is, even if you edited the files around the rules.
 
-## The cycle
+```
+$ spacekid init        # second run in the same project
+mode: project
+skipped (already exists): AGENTS.md
+skipped (already exists): specs/AGENTS.md
+skipped (already exists): plans/AGENTS.md
+```
+
+## The working loop
+
+Every feature follows the same four steps, in this order:
 
 ```mermaid
 flowchart LR
@@ -160,85 +229,75 @@ flowchart LR
     style D fill:#fbe0f0,stroke:#a21caf
 ```
 
-1. **Spec** — Define *what* needs to be built and *why*, in pure business
-   terms. No code, no architecture, no references to other files. See
-   [`specs/AGENTS.md`](specs/AGENTS.md).
-2. **Plan** — Once the spec is approved, design *how* to build it: the
-   simplest approach that fully satisfies the spec, applying KISS and SOLID.
-   This is the only file allowed to reference the spec. See
-   [`plans/AGENTS.md`](plans/AGENTS.md).
-3. **Implementation** — Code exactly what the plan describes. No spec, no
-   plan, no implementation.
-4. **Update (the step that's easy to forget)** — The moment implementation
-   is done, the agent must go back and:
-   - mark the plan `Done`, recording any deviation from the original design
-     and why it was necessary;
-   - mark the spec `Implemented`, updating acceptance criteria if reality
-     forced a change;
-   - update any *other* spec/plan pair whose behavior was affected along the
-     way.
+1. **Spec** — write `specs/<name>.md`: what and why, in business terms
+   (context, requirements, acceptance criteria). No code, no references to
+   other files.
+2. **Plan** — write `plans/<name>.md`: how to build it, the simplest design
+   that satisfies the spec. It is the only file allowed to reference the spec.
+3. **Implementation** — code exactly what the plan says, only after both
+   files exist and are approved.
+4. **Update** — as soon as the work is done, mark the plan `Done` (recording
+   any deviation and why) and the spec `Implemented`, and update any other
+   spec or plan whose behavior you touched.
 
-The loop only closes when step 4 happens. Skipping it is the single most
-common way documentation rots — SpaceKid treats it as a non-negotiable part
-of "done," not an optional cleanup step.
+The loop only closes at step 4. Each file points one way — plan to spec, never
+the reverse — so every file reads on its own and any agent can resume cold:
+read `AGENTS.md`, then the relevant spec and plan, and have the full picture
+without digging through chat history.
 
-## Why this matters for agents specifically
+## Troubleshooting
 
-Agents don't carry institutional memory between sessions the way a team
-does. A closed, file-based loop means:
+**Files created by Docker belong to `root` (or another user).**
+Add `-u "$(id -u):$(id -g)"` to `docker run`, as in every example above. To
+fix files already created: `sudo chown -R "$(id -u):$(id -g)" specs plans AGENTS.md`.
 
-- **Simplicity by construction.** Splitting "what/why" from "how" stops
-  business intent from getting buried under implementation detail — and
-  keeps the plan honest about being the simplest design that works.
-- **No silent drift.** Every implementation must reconcile itself against
-  the spec and plan it came from, so the docs describe what was *actually*
-  built, not just what was originally intended.
-- **Any agent can resume cold.** Because each file is self-contained and the
-  referencing direction is fixed, a new agent (or a new session) can read
-  `AGENTS.md`, then the relevant spec and plan, and have full context without
-  digging through chat history or commit logs.
+**`permission denied` when the container writes.**
+The container user needs write access to the mounted directory. Run with `-u
+"$(id -u):$(id -g)"` and make sure you own the directory.
+
+**Nothing appears in my project after `docker run`.**
+Check the volume: `-v "$PWD:/project"` must be present, and the container
+works on `/project`. Without it, files are written inside the throwaway
+container and lost.
+
+**It chose brain mode (or project mode) and I wanted the other.**
+Pass `--mode project` or `--mode brain`. See [Choosing a mode](#choosing-a-mode).
+
+**`FileNotFoundError` with `--path`.**
+The directory given to `--path` must exist. Create it first.
+
+**`spacekid: command not found` after `pipx install`.**
+Run `pipx ensurepath` and open a new shell.
+
+**Migrating from the npm package.**
+The `spacekid` npm package is retired. Replace `npx spacekid init` with the
+Docker command above, or install with `pipx` once and run `spacekid init`.
+
+## Issues and contributing
+
+- Report bugs and ideas at <https://github.com/victorradael/spacekid/issues>.
+- Contributions are welcome as pull requests. This project follows its own
+  loop: propose a spec in `specs/`, then a plan in `plans/`, then the code.
+  Read `AGENTS.md` in the repository first.
+- Commits follow [Conventional Commits](https://www.conventionalcommits.org/);
+  releases are generated from them.
+- Maintainers: see [MAINTAINING.md](MAINTAINING.md).
 
 ## Repository layout
 
 ```
-/AGENTS.md          # entry point: maps the repo, enforces the cycle
+/AGENTS.md           # entry point: maps the repo, enforces the cycle
 /specs/AGENTS.md     # how to write a good spec
-/specs/<name>.md      # one per feature, business-only
+/specs/<name>.md     # one per feature, business-only
 /plans/AGENTS.md     # how to write a good implementation plan
-/plans/<name>.md      # one per spec, technical design + status
-/src/spacekid/      # the CLI (single implementation)
+/plans/<name>.md     # one per spec, technical design + status
+/src/spacekid/       # the CLI
 /Dockerfile          # container image wrapping the CLI
+/DOCKERHUB.md        # Docker Hub page, synced on release
+/MAINTAINING.md      # release process and maintainer setup
 ```
-
-## Releasing
-
-Releases are automatic. Every push to `main` is evaluated from its commit
-messages ([Conventional Commits](https://www.conventionalcommits.org/)); if a
-user-visible change is found, a GitHub Release with generated notes is
-created and the image is published to Docker Hub.
-
-| Commit | Effect |
-|---|---|
-| `fix: ...` | patch release (`1.2.3` → `1.2.4`) |
-| `feat: ...` | minor release (`1.2.3` → `1.3.0`) |
-| `BREAKING CHANGE:` footer (or `feat!:`) | major release (`1.2.3` → `2.0.0`) |
-| `docs:`, `test:`, `chore:`, `ci:`, `refactor:` | no release |
-
-Pull requests are built and smoke-tested without publishing anything. A
-failed release shows as a failed run of the `docker` workflow, which GitHub
-notifies maintainers about.
-
-### One-time setup (maintainers)
-
-- Tag the current `main` commit `v0.1.0` and push it, so the first automated
-  release continues the numbering instead of starting at `1.0.0`.
-- Create the `spacekid` repository on Docker Hub.
-- Add the secrets `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` (an access token
-  scoped to that repository only), ideally in a `production` environment.
-- Protect `main` and require the `test` check.
 
 ## Language
 
-All documentation — specs, plans, `AGENTS.md` files, this README — is
-written in English, regardless of the language used in conversation with the
-agent.
+All documentation — specs, plans, `AGENTS.md` files, this README — is written
+in English, regardless of the language used in conversation with the agent.

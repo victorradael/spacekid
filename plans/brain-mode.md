@@ -74,8 +74,8 @@ template, `brain_agents.md`.
   source of truth for spec/plan rules.
 - **`.gitkeep` placeholders** over a README per folder: minimal, and the
   purpose of each folder already lives in `brain/AGENTS.md`.
-- **Append on re-run for `sdd/*/AGENTS.md`** keeps parity with project mode;
-  duplicate guidance on a second run is accepted as before.
+- **Append for `sdd/*/AGENTS.md`** keeps parity with project mode. A re-run
+  no longer duplicates the guidance: files already containing it are skipped.
 
 ## Implementation Notes
 
