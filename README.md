@@ -27,12 +27,12 @@ shell profile so it survives new terminals. Use `~/.zshrc` for zsh or
 
 ```bash
 cat >> ~/.zshrc <<'EOF'
-alias spacekid='docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/project" victorradael/spacekid'
+alias spacekid='docker run -it --rm -e NO_COLOR -u "$(id -u):$(id -g)" -v "$PWD:/project" victorradael/spacekid'
 EOF
 source ~/.zshrc
 ```
 
-For fish, run `alias --save spacekid 'docker run --rm -u (id -u):(id -g) -v $PWD:/project victorradael/spacekid'` instead.
+For fish, run `alias --save spacekid 'docker run -it --rm -e NO_COLOR -u (id -u):(id -g) -v $PWD:/project victorradael/spacekid'` instead.
 
 **3. Use it, from the root of your project.**
 
@@ -64,6 +64,8 @@ The shortcut is a short name for a longer Docker command:
 |---|---|
 | `docker run` | Start the SpaceKid container. |
 | `--rm` | Delete the container when it finishes. Nothing is left behind. |
+| `-it` | Connect your terminal to the container, so colors and the interactive menu work. Without it, SpaceKid prints plain text. |
+| `-e NO_COLOR` | Pass your `NO_COLOR` setting through, so opting out of color still works. |
 | `-u "$(id -u):$(id -g)"` | Run as you, so created files belong to you instead of `root`. |
 | `-v "$PWD:/project"` | Give the container your current folder as `/project`. Without it, files are created inside the container and lost. |
 | `victorradael/spacekid` | The image to run. |

@@ -59,3 +59,10 @@ Implemented as planned, with these deviations:
 - Tests also cover the menu running init/about/quit and plain piped `init`
   output. No other spec/plan pair needed changes; `init` output off-TTY is
   unchanged.
+- Distribution is container-only, and the documented alias ran `docker run`
+  without a TTY, so the UI (correctly) fell back to plain output. The alias
+  in `README.md` and `DOCKERHUB.md` now uses `-it` and passes `-e NO_COLOR`.
+  Scripts and CI that pipe output should call `docker run` without `-it`.
+- The banner is also printed before `--help` output (via a small
+  `ArgumentParser.print_help` override) whenever color is supported, so users
+  see it on the most common first command.

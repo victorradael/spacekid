@@ -112,3 +112,21 @@ def test_interactive_menu_about_and_quit(
 
     monkeypatch.setattr("builtins.input", lambda _="": "5")
     assert cli.main([]) == 0
+
+
+def test_help_shows_banner_with_color(tty: None, capsys: pytest.CaptureFixture[str]) -> None:
+    with pytest.raises(SystemExit):
+        cli.main(["--help"])
+
+    out = capsys.readouterr().out
+    assert "\033[" in out
+    assert "usage: spacekid" in out
+
+
+def test_help_has_no_banner_without_color(capsys: pytest.CaptureFixture[str]) -> None:
+    with pytest.raises(SystemExit):
+        cli.main(["init", "--help"])
+
+    out = capsys.readouterr().out
+    assert "\033[" not in out
+    assert "|_" not in out

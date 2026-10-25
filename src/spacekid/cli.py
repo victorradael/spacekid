@@ -54,8 +54,16 @@ def _menu() -> int:
     return _init(argparse.Namespace(path=".", name=None, mode=action))
 
 
+class _Parser(argparse.ArgumentParser):
+    def print_help(self, file=None) -> None:
+        if ui.supports_color():
+            print(ui.banner(version("spacekid")), file=file)
+            print(file=file)
+        super().print_help(file)
+
+
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="spacekid")
+    parser = _Parser(prog="spacekid")
     parser.add_argument("--version", action="version", version=f"%(prog)s {version('spacekid')}")
     subparsers = parser.add_subparsers(dest="command")
 
