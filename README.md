@@ -12,13 +12,33 @@ ad-hoc prompting. It works on projects in any language.
 
 ## Quick start
 
-From the root of your project (needs only [Docker](https://docs.docker.com/get-docker/)):
+With [Docker](https://docs.docker.com/get-docker/) installed, three steps take
+you from nothing to a scaffolded project.
+
+**1. Download the image (once).**
 
 ```bash
-docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/project" victorradael/spacekid init
+docker pull victorradael/spacekid
 ```
 
-Output:
+**2. Create the `spacekid` command (once).** This adds a shortcut to your
+shell profile so it survives new terminals. Use `~/.zshrc` for zsh or
+`~/.bashrc` for bash:
+
+```bash
+cat >> ~/.zshrc <<'EOF'
+alias spacekid='docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/project" victorradael/spacekid'
+EOF
+source ~/.zshrc
+```
+
+For fish, run `alias --save spacekid 'docker run --rm -u (id -u):(id -g) -v $PWD:/project victorradael/spacekid'` instead.
+
+**3. Use it, from the root of your project.**
+
+```bash
+spacekid init
+```
 
 ```
 mode: project
@@ -27,11 +47,21 @@ created: specs/AGENTS.md
 created: plans/AGENTS.md
 ```
 
-You now have an `AGENTS.md` entry point plus the rules for writing specs and
-plans. Point your agent at `AGENTS.md` and start with your first spec — see
-[The working loop](#the-working-loop).
+From now on, `spacekid` is all you type.
 
-Prefer a local install? See [Install](#install).
+Prefer a local install without Docker? See [Install](#install).
+
+### What the shortcut does
+
+The shortcut is a short name for a longer Docker command:
+
+| Part | Meaning |
+|---|---|
+| `docker run` | Start the SpaceKid container. |
+| `--rm` | Delete the container when it finishes. Nothing is left behind. |
+| `-u "$(id -u):$(id -g)"` | Run as you, so created files belong to you instead of `root`. |
+| `-v "$PWD:/project"` | Give the container your current folder as `/project`. Without it, files are created inside the container and lost. |
+| `victorradael/spacekid` | The image to run. |
 
 ## Install
 
@@ -40,31 +70,14 @@ same commands and results.
 
 ### With Docker
 
-```bash
-docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/project" victorradael/spacekid init
-```
-
-- `-v "$PWD:/project"` mounts the current directory as the project.
-- `-u "$(id -u):$(id -g)"` makes created files belong to you instead of
-  another user (see [Troubleshooting](#troubleshooting)).
-
-Pin a version with an image tag:
+Follow the [Quick start](#quick-start). To pin a version, use an image tag in
+both `docker pull` and the shortcut:
 
 | Tag | Meaning |
 |---|---|
 | `victorradael/spacekid:1.2.3` | an exact release |
 | `victorradael/spacekid:1.2` | the latest patch of that minor version |
-| `victorradael/spacekid:latest` | the most recent release |
-
-```bash
-docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/project" victorradael/spacekid:1.2.3 init
-```
-
-Tip: add an alias to your shell profile.
-
-```bash
-alias spacekid='docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/project" victorradael/spacekid'
-```
+| `victorradael/spacekid:latest` | the most recent release (default) |
 
 ### With Python
 
@@ -105,11 +118,11 @@ spacekid [--version] [-h] init [--path PATH] [--name NAME] [--mode {auto,project
 | `init --name NAME` | Project name written into `AGENTS.md`. Default: the `name` in `pyproject.toml` if present, otherwise the directory name. |
 | `init --mode MODE` | `project`, `brain`, or `auto` (default). See [Choosing a mode](#choosing-a-mode). |
 
-With Docker, put the options after `init`; use `-v` to mount the directory you
-want to scaffold, and `--path` is rarely needed:
+With the Docker shortcut, put the options after `init`. The shortcut already
+mounts the current folder, so `--path` is rarely needed:
 
 ```bash
-docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/project" victorradael/spacekid init --name "My App"
+spacekid init --name "My App"
 ```
 
 ## Choosing a mode
@@ -247,8 +260,23 @@ without digging through chat history.
 
 ## Troubleshooting
 
+**`docker pull` fails or stops midway** (for example `connection reset by
+peer`).
+This is a network interruption, not a SpaceKid problem. Run `docker pull
+victorradael/spacekid` again: layers already downloaded are kept, so it
+resumes. If it keeps failing, wait a few minutes, try another network, or
+temporarily disable IPv6 (`sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1`,
+and set it back to `0` afterwards). To skip Docker entirely, use the
+[Python install](#with-python).
+
+**`spacekid: command not found` after the Quick start.**
+The shortcut is not loaded in this terminal. Run `source ~/.zshrc` (or
+`source ~/.bashrc`), or open a new terminal, and check that the `alias` line
+is in your profile.
+
 **Files created by Docker belong to `root` (or another user).**
-Add `-u "$(id -u):$(id -g)"` to `docker run`, as in every example above. To
+Use the `spacekid` shortcut from the Quick start, which already includes
+`-u "$(id -u):$(id -g)"`. To
 fix files already created: `sudo chown -R "$(id -u):$(id -g)" specs plans AGENTS.md`.
 
 **`permission denied` when the container writes.**

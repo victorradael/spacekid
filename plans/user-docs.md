@@ -76,3 +76,37 @@ Implemented as planned, with these notes:
 - **Not verified end to end.** The Docker Hub sync only runs on a release; it
   has not been exercised yet. The image owner `victorradael` is assumed to be
   the Docker Hub account behind `DOCKERHUB_USERNAME`.
+
+## Revision: simpler container usage
+
+Documentation-only; touches `README.md` and `DOCKERHUB.md`.
+
+1. Replace the Docker quick start with three steps: `docker pull
+   victorradael/spacekid`; define the `spacekid` alias and persist it
+   (`~/.bashrc` / `~/.zshrc` snippets, plus `source` or opening a new
+   terminal); then `spacekid init`. The alias is single-quoted so `$PWD` and
+   the user ids resolve at call time, not at definition time.
+2. Move the long `docker run` form into a "What the alias does" section
+   explaining `--rm`, `-u`, `-v` and the working directory, and use the alias
+   in all later examples (`spacekid init --name "My App"`).
+3. Add troubleshooting entries: interrupted `docker pull` (retry resumes
+   cached layers; try again later or from another network; IPv6 as a
+   possible cause) and fallback to `pipx install`; and alias not found
+   (profile not reloaded).
+4. Mirror steps 1-2 in `DOCKERHUB.md`, using absolute links only.
+5. Verify the alias by actually defining it in a shell and running `init`
+   in a scratch directory, if the image is available locally; otherwise
+   verify with the Python install and say so.
+6. Mark the spec criteria and this revision as done and record deviations.
+
+### Revision notes
+
+Implemented as planned, with these notes:
+
+- **Verification.** The published image was not available locally (the
+  download had failed), so the real container was not run. The alias was
+  verified in bash with a stub `docker` command: it expands with the current
+  user ids and directory at call time. The fish form was not run.
+- **Docker Hub page.** The old "shell alias" tip was removed; the quick start
+  now carries the alias, and pull-retry guidance is a short note there. The
+  IPv6 workaround lives only in the README troubleshooting.

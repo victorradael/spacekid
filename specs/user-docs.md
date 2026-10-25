@@ -11,6 +11,12 @@ release notes, and the image instructions contain a placeholder instead of
 the real image name. A newcomer cannot copy a command and have it work, and
 the Docker Hub page has no content of its own.
 
+Running the container today takes one long command with several unexplained
+flags, and a shorter everyday form is only mentioned as an optional tip. The
+first contact feels heavy and unclear, and when the image download fails
+midway (a common network hiccup) the newcomer has no guidance on how to
+continue.
+
 People should be able to understand what the tool does, run it successfully
 within a minute, and find answers to common problems, on whichever of the two
 sites they arrive from.
@@ -22,6 +28,14 @@ sites they arrive from.
   shorter.
 - Every command shown must work as written, with the real published image
   name and no placeholders.
+- Container usage must be presented as three short, separate steps: download
+  the image once, set up a short everyday command, then use that command. The
+  long form of the run command must not be the first thing a newcomer sees.
+- The short everyday command must be set up in a way that persists across
+  terminal sessions, with instructions for the common shells, and each part
+  of the long form must be explained in plain words.
+- The documentation must tell the user what to do when the image download
+  fails or is interrupted, including that retrying resumes the download.
 - The documentation must cover:
   - What SpaceKid is and the project's study-project status.
   - Installation, both with Python and with the container image, including
@@ -63,6 +77,14 @@ sites they arrive from.
       published page after the next release, with no manual step.
 - [x] Release and maintainer setup material is clearly separated from
       user-facing documentation.
+- [x] The container quick start is three separate steps (download once, set up
+      the short command, use it), and the long command is not the first
+      command shown.
+- [x] A user can make the short command permanent for their shell by
+      following the documentation alone.
+- [x] Every part of the long form of the container command is explained.
+- [x] Failed or interrupted image downloads are covered in troubleshooting,
+      with a fallback that does not need the container.
 
 ## Out of Scope
 

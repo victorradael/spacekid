@@ -10,10 +10,31 @@ language.
 
 ## Quick start
 
-Run from the root of your project:
+Three steps, from nothing to a scaffolded project.
+
+**1. Download the image (once).**
 
 ```bash
-docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/project" victorradael/spacekid init
+docker pull victorradael/spacekid
+```
+
+**2. Create the `spacekid` command (once).** This adds a shortcut to your
+shell profile so it survives new terminals. Use `~/.zshrc` for zsh or
+`~/.bashrc` for bash:
+
+```bash
+cat >> ~/.zshrc <<'EOF'
+alias spacekid='docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/project" victorradael/spacekid'
+EOF
+source ~/.zshrc
+```
+
+For fish, run `alias --save spacekid 'docker run --rm -u (id -u):(id -g) -v $PWD:/project victorradael/spacekid'` instead.
+
+**3. Use it, from the root of your project.**
+
+```bash
+spacekid init
 ```
 
 ```
@@ -23,9 +44,20 @@ created: specs/AGENTS.md
 created: plans/AGENTS.md
 ```
 
-- `-v "$PWD:/project"` mounts your current directory as the project.
-- `-u "$(id -u):$(id -g)"` makes the created files belong to you. Without it
-  they may be owned by another user.
+From now on, `spacekid` is all you type.
+
+### What the shortcut does
+
+| Part | Meaning |
+|---|---|
+| `docker run` | Start the SpaceKid container. |
+| `--rm` | Delete the container when it finishes. Nothing is left behind. |
+| `-u "$(id -u):$(id -g)"` | Run as you, so created files belong to you instead of `root`. |
+| `-v "$PWD:/project"` | Give the container your current folder as `/project`. Without it, files are created inside the container and lost. |
+| `victorradael/spacekid` | The image to run. |
+
+If `docker pull` fails midway (for example `connection reset by peer`), run it
+again: layers already downloaded are kept, so it resumes.
 
 ## Tags
 
@@ -35,8 +67,10 @@ created: plans/AGENTS.md
 | `1.2` | the latest patch of that minor version |
 | `latest` | the most recent release |
 
+To pin a version, use the tag in `docker pull` and in the shortcut:
+
 ```bash
-docker run --rm victorradael/spacekid:1.2.3 --version
+docker pull victorradael/spacekid:1.2.3
 ```
 
 ## Options
@@ -74,7 +108,7 @@ brain/
 more child folders do; otherwise project mode. Force one with `--mode`:
 
 ```bash
-docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/project" victorradael/spacekid init --mode brain
+spacekid init --mode brain
 ```
 
 ## Existing files
@@ -83,13 +117,6 @@ Nothing is overwritten. `AGENTS.md` and `brain/AGENTS.md` are left alone
 (`skipped (already exists)`); the spec and plan rule files are added to the
 end if they exist without the SpaceKid rules (`appended to`). Running `init`
 again is safe: files that already have the rules are left as they are.
-
-## Tip: shell alias
-
-```bash
-alias spacekid='docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/project" victorradael/spacekid'
-spacekid init
-```
 
 ## Full documentation
 
