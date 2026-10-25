@@ -120,7 +120,6 @@ again is safe: files that already have the rules are left as they are.
 
 ## Full documentation
 
-Installing with Python, troubleshooting, the working loop and how to
-contribute: <https://github.com/victorradael/spacekid#readme>
+Troubleshooting, the working loop and how to contribute: <https://github.com/victorradael/spacekid#readme>
 
 Issues: <https://github.com/victorradael/spacekid/issues>

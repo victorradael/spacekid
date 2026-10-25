@@ -49,8 +49,6 @@ created: plans/AGENTS.md
 
 From now on, `spacekid` is all you type.
 
-Prefer a local install without Docker? See [Install](#install).
-
 ### What the shortcut does
 
 The shortcut is a short name for a longer Docker command:
@@ -65,13 +63,9 @@ The shortcut is a short name for a longer Docker command:
 
 ## Install
 
-SpaceKid is a command-line tool, not a library. Pick one way; both give the
-same commands and results.
-
-### With Docker
-
-Follow the [Quick start](#quick-start). To pin a version, use an image tag in
-both `docker pull` and the shortcut:
+SpaceKid is a command-line tool, distributed as a container image. Follow the
+[Quick start](#quick-start). To pin a version, use an image tag in both
+`docker pull` and the shortcut:
 
 | Tag | Meaning |
 |---|---|
@@ -79,29 +73,7 @@ both `docker pull` and the shortcut:
 | `victorradael/spacekid:1.2` | the latest patch of that minor version |
 | `victorradael/spacekid:latest` | the most recent release (default) |
 
-### With Python
-
-SpaceKid is not on PyPI yet, so install it from GitHub. `pipx` is recommended:
-it installs the tool in its own environment and puts it on your `PATH`.
-
-```bash
-pipx install git+https://github.com/victorradael/spacekid.git
-```
-
-or with `pip`:
-
-```bash
-pip install git+https://github.com/victorradael/spacekid.git
-```
-
-Pin a version by appending a release tag:
-
-```bash
-pipx install git+https://github.com/victorradael/spacekid.git@v0.1.0
-```
-
-Both `spacekid` and the shorter `sk` are installed and behave identically.
-Check the install with `spacekid --version`.
+Check the version with `spacekid --version`.
 
 ## Commands and options
 
@@ -118,8 +90,8 @@ spacekid [--version] [-h] init [--path PATH] [--name NAME] [--mode {auto,project
 | `init --name NAME` | Project name written into `AGENTS.md`. Default: the `name` in `pyproject.toml` if present, otherwise the directory name. |
 | `init --mode MODE` | `project`, `brain`, or `auto` (default). See [Choosing a mode](#choosing-a-mode). |
 
-With the Docker shortcut, put the options after `init`. The shortcut already
-mounts the current folder, so `--path` is rarely needed:
+Put the options after `init`. The shortcut already mounts the current
+folder, so `--path` is rarely needed:
 
 ```bash
 spacekid init --name "My App"
@@ -278,8 +250,7 @@ docker pull victorradael/spacekid
 sudo sysctl -w net.ipv6.conf.wlp0s20f3.disable_ipv6=0
 ```
 
-Rebooting also reverts it. To skip Docker entirely, use the
-[Python install](#with-python).
+Rebooting also reverts it.
 
 **`spacekid: command not found` after the Quick start.**
 The shortcut is not loaded in this terminal. Run `source ~/.zshrc` (or
@@ -306,12 +277,12 @@ Pass `--mode project` or `--mode brain`. See [Choosing a mode](#choosing-a-mode)
 **`FileNotFoundError` with `--path`.**
 The directory given to `--path` must exist. Create it first.
 
-**`spacekid: command not found` after `pipx install`.**
-Run `pipx ensurepath` and open a new shell.
-
-**Migrating from the npm package.**
-The `spacekid` npm package is retired. Replace `npx spacekid init` with the
-Docker command above, or install with `pipx` once and run `spacekid init`.
+**Migrating from the npm package or a `pipx`/`pip` install.**
+The container image is now the only way to use SpaceKid; the `spacekid` npm
+package is retired and installing with `pipx` or `pip` is no longer supported.
+Uninstall the old copy, then follow the [Quick start](#quick-start) to pull the
+image and create the shortcut, and run `spacekid init` as before. The short
+`sk` name is no longer part of the documented interface.
 
 ## Issues and contributing
 
@@ -321,6 +292,8 @@ Docker command above, or install with `pipx` once and run `spacekid init`.
   Read `AGENTS.md` in the repository first.
 - Commits follow [Conventional Commits](https://www.conventionalcommits.org/);
   releases are generated from them.
+- The CLI is written in Python. That is an internal detail, not something
+  users need. To run the tests locally, see [MAINTAINING.md](MAINTAINING.md).
 - Maintainers: see [MAINTAINING.md](MAINTAINING.md).
 
 ## Repository layout

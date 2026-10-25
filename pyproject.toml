@@ -12,7 +12,6 @@ license = { text = "MIT" }
 
 [project.scripts]
 spacekid = "spacekid.cli:main"
-sk = "spacekid.cli:main"
 
 [project.optional-dependencies]
 test = ["pytest>=7"]

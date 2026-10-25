@@ -3,6 +3,10 @@
 Implements: `specs/cli-distribution.md`
 Status: Done
 
+Note: the direct-install channel described here (the `sk` script, the
+"installed on a machine with Python" way) was retired by
+`plans/container-only-distribution.md`. The container is the only channel.
+
 ## Approach
 
 Keep the single Python package as the only implementation and add two thin

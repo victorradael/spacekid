@@ -38,8 +38,7 @@ sites they arrive from.
   fails or is interrupted, including that retrying resumes the download.
 - The documentation must cover:
   - What SpaceKid is and the project's study-project status.
-  - Installation, both with Python and with the container image, including
-    how to pin a version.
+  - Installation with the container image, including how to pin a version.
   - The quick start: from an empty project to a scaffolded one.
   - Every command and option, with a short description of each.
   - What gets created in each usage mode, with an example of the resulting

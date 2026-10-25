@@ -26,7 +26,7 @@ Files:
    examples. Nothing is documented from memory.
 2. Rewrite `README.md` in this order: logo and one-line pitch, status note,
    quick start (Docker first, since that is the main path), install
-   (Docker, pipx/pip, version pinning), commands and options table, project
+   (Docker only, version pinning), commands and options table, project
    mode, brain mode and detection rules, existing-files behavior, the
    working loop (condensed from the current "why" sections, keeping the
    mermaid diagram), troubleshooting, contributing/issues, repository
@@ -91,12 +91,12 @@ Documentation-only; touches `README.md` and `DOCKERHUB.md`.
    in all later examples (`spacekid init --name "My App"`).
 3. Add troubleshooting entries: interrupted `docker pull` (retry resumes
    cached layers; try again later or from another network; IPv6 as a
-   possible cause) and fallback to `pipx install`; and alias not found
+   possible cause), with no language-ecosystem fallback; and alias not found
    (profile not reloaded).
 4. Mirror steps 1-2 in `DOCKERHUB.md`, using absolute links only.
 5. Verify the alias by actually defining it in a shell and running `init`
    in a scratch directory, if the image is available locally; otherwise
-   verify with the Python install and say so.
+   say the check could not be run.
 6. Mark the spec criteria and this revision as done and record deviations.
 
 ### Revision notes

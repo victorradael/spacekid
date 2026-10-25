@@ -2,6 +2,18 @@
 
 Material for maintainers. User documentation lives in `README.md`.
 
+## Development
+
+The CLI is written in Python. This is an internal implementation detail: it is
+never part of the user-facing documentation, and users only run the container
+image. To run the tests locally:
+
+```bash
+python -m venv .venv && . .venv/bin/activate
+pip install -e ".[test]"
+pytest
+```
+
 ## Releasing
 
 Releases are automatic. Every push to `main` is evaluated from its commit
