@@ -63,14 +63,14 @@ again: layers already downloaded are kept, so it resumes.
 
 | Tag | Meaning |
 |---|---|
-| `1.2.3` | an exact release |
-| `1.2` | the latest patch of that minor version |
+| `1.1.1` | an exact release |
+| `1.1` | the latest patch of that minor version |
 | `latest` | the most recent release |
 
 To pin a version, use the tag in `docker pull` and in the shortcut:
 
 ```bash
-docker pull victorradael/spacekid:1.2.3
+docker pull victorradael/spacekid:1.1.1
 ```
 
 ## Options

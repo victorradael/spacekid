@@ -75,7 +75,7 @@ both `docker pull` and the shortcut:
 
 | Tag | Meaning |
 |---|---|
-| `victorradael/spacekid:1.2.3` | an exact release |
+| `victorradael/spacekid:1.1.1` | an exact release (example; see all tags on Docker Hub) |
 | `victorradael/spacekid:1.2` | the latest patch of that minor version |
 | `victorradael/spacekid:latest` | the most recent release (default) |
 
