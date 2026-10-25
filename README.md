@@ -49,6 +49,13 @@ created: plans/AGENTS.md
 
 From now on, `spacekid` is all you type.
 
+In a color terminal, `init` prints a banner and color-coded results
+(✔ created, ✚ appended, • skipped). Run `spacekid` with no arguments to open an
+interactive menu (initialize a project, initialize a multi-repo directory,
+about, quit). When output is piped or redirected, or `NO_COLOR` is set, the
+output stays plain text, and running `spacekid` with no arguments prints the
+usage help instead.
+
 ### What the shortcut does
 
 The shortcut is a short name for a longer Docker command:
