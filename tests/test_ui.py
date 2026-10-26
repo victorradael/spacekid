@@ -60,20 +60,21 @@ def test_piped_init_output_is_plain(tmp_path: Path, capsys: pytest.CaptureFixtur
 
     out = capsys.readouterr().out
     assert "\033[" not in out
-    assert "mode: project" in out
+    assert "mode" not in out
     assert "created: AGENTS.md" in out
+    assert "created: miniverse/AGENTS.md" in out
 
 
 def test_menu_rejects_invalid_input_then_accepts_valid(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(ui, "supports_color", lambda: False)
-    answers = iter(["9", "nope", "3"])
+    answers = iter(["9", "nope", "1"])
     output: list[str] = []
 
     choice = ui.choose_from_menu(read=lambda _: next(answers), write=output.append)
 
-    assert choice == "brain"
+    assert choice == "init"
     assert sum("Invalid choice" in line for line in output) == 2
 
 
@@ -92,11 +93,12 @@ def test_interactive_menu_runs_init(
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(ui, "is_interactive", lambda: True)
     monkeypatch.setattr(ui, "supports_color", lambda: False)
-    monkeypatch.setattr("builtins.input", lambda _="": "2")
+    monkeypatch.setattr("builtins.input", lambda _="": "1")
 
     assert cli.main([]) == 0
 
     assert (tmp_path / "AGENTS.md").is_file()
+    assert (tmp_path / "miniverse" / "AGENTS.md").is_file()
     assert "created: AGENTS.md" in capsys.readouterr().out
 
 
@@ -106,11 +108,11 @@ def test_interactive_menu_about_and_quit(
     monkeypatch.setattr(ui, "is_interactive", lambda: True)
     monkeypatch.setattr(ui, "supports_color", lambda: False)
 
-    monkeypatch.setattr("builtins.input", lambda _="": "4")
+    monkeypatch.setattr("builtins.input", lambda _="": "2")
     assert cli.main([]) == 0
-    assert "SpaceKid scaffolds" in capsys.readouterr().out
+    assert "SpaceKid creates a miniverse" in capsys.readouterr().out
 
-    monkeypatch.setattr("builtins.input", lambda _="": "5")
+    monkeypatch.setattr("builtins.input", lambda _="": "3")
     assert cli.main([]) == 0
 
 

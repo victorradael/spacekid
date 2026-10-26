@@ -1,4 +1,4 @@
-"""Scaffolds the SpaceKid AGENTS.md cycle into a target project."""
+"""Scaffolds a miniverse into a target directory."""
 
 from __future__ import annotations
 
@@ -33,15 +33,13 @@ def detect_app_name(project_root: Path) -> str:
     return project_root.resolve().name
 
 
-def render_root_agents(app_name: str) -> str:
-    return _load_template("root_agents.md").replace(_APP_NAME_PLACEHOLDER, app_name)
-
-
-def write_or_skip(path: Path, content: str) -> FileResult:
+def write_or_skip(path: Path, content: str, executable: bool = False) -> FileResult:
     if path.exists():
         return FileResult(path, "skipped")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content, encoding="utf-8")
+    if executable:
+        path.chmod(0o755)
     return FileResult(path, "created")
 
 
@@ -57,37 +55,26 @@ def write_or_append(path: Path, content: str) -> FileResult:
     return FileResult(path, "created")
 
 
-def scaffold(project_root: Path, app_name: str | None = None) -> list[FileResult]:
-    project_root = Path(project_root)
-    resolved_name = app_name or detect_app_name(project_root)
-
-    results = [
-        write_or_skip(project_root / "AGENTS.md", render_root_agents(resolved_name)),
-        write_or_append(project_root / "specs" / "AGENTS.md", _load_template("specs_agents.md")),
-        write_or_append(project_root / "plans" / "AGENTS.md", _load_template("plans_agents.md")),
-    ]
-    return results
-
-
-def detect_mode(path: Path) -> str:
-    """Return "brain" for a non-repo directory holding two or more repos, else "project"."""
-    path = Path(path)
-    if (path / ".git").exists():
-        return "project"
-    repos = [c for c in path.iterdir() if c.is_dir() and (c / ".git").exists()]
-    return "brain" if len(repos) >= 2 else "project"
-
-
-def scaffold_brain(root: Path, app_name: str | None = None) -> list[FileResult]:
+def scaffold(root: Path, app_name: str | None = None) -> list[FileResult]:
     root = Path(root)
-    brain = root / "brain"
-    resolved_name = app_name or detect_app_name(root)
-    brain_agents = _load_template("brain_agents.md").replace(_APP_NAME_PLACEHOLDER, resolved_name)
+    name = app_name or detect_app_name(root)
+    miniverse = root / "miniverse"
+
+    def render(template: str) -> str:
+        return _load_template(template).replace(_APP_NAME_PLACEHOLDER, name)
 
     return [
-        write_or_skip(brain / "AGENTS.md", brain_agents),
-        write_or_append(brain / "sdd" / "specs" / "AGENTS.md", _load_template("specs_agents.md")),
-        write_or_append(brain / "sdd" / "plans" / "AGENTS.md", _load_template("plans_agents.md")),
-        write_or_skip(brain / "contexts" / ".gitkeep", ""),
-        write_or_skip(brain / "artifacts" / ".gitkeep", ""),
+        write_or_skip(root / "AGENTS.md", render("root_agents.md")),
+        write_or_skip(miniverse / "AGENTS.md", render("miniverse_agents.md")),
+        write_or_skip(miniverse / ".miniverse", f"{name}\n"),
+        write_or_skip(miniverse / "scan.sh", _load_template("scan.sh"), executable=True),
+        write_or_skip(miniverse / "catalog.md", render("miniverse_catalog.md")),
+        write_or_append(miniverse / "contexts" / "AGENTS.md", _load_template("contexts_agents.md")),
+        write_or_append(
+            miniverse / "artifacts" / "AGENTS.md", _load_template("artifacts_agents.md")
+        ),
+        write_or_append(miniverse / "sdd" / "specs" / "AGENTS.md", _load_template("specs_agents.md")),
+        write_or_append(miniverse / "sdd" / "plans" / "AGENTS.md", _load_template("plans_agents.md")),
+        write_or_skip(miniverse / "contexts" / ".gitkeep", ""),
+        write_or_skip(miniverse / "artifacts" / ".gitkeep", ""),
     ]

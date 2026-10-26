@@ -3,7 +3,7 @@
 A plan translates a spec into a **technical design**: how it will be built,
 with the highest quality and best software engineering practices.
 
-Follow the same writing discipline as `specs/AGENTS.md` — concise, clear,
+Follow the same writing discipline as `sdd/specs/AGENTS.md` — concise, clear,
 no fluff — applied here to engineering rather than business content.
 
 ## Guiding principles
@@ -18,11 +18,14 @@ no fluff — applied here to engineering rather than business content.
 
 ## Rules
 
-- **One plan per spec**, named identically: `plans/<name>.md` implements
-  `specs/<name>.md`.
+- **One plan per spec**, named identically: `sdd/plans/<name>.md` implements
+  `sdd/specs/<name>.md`.
 - **This file may reference its spec** — it should open by linking to
-  `specs/<name>.md`. This is the only direction references flow: specs never
-  reference plans.
+  `sdd/specs/<name>.md`. A plan references its spec; the spec references the
+  plan only through its Traceability section.
+- **Register it.** When a plan is created, add it to its spec's Traceability
+  section with the date added, and refresh the spec's `Updated` date. Do the
+  same for any context or artifact derived from the spec.
 - **English only.**
 
 ## Structure
@@ -30,7 +33,7 @@ no fluff — applied here to engineering rather than business content.
 ```markdown
 # <Feature Name> — Implementation Plan
 
-Implements: `specs/<name>.md`
+Implements: `sdd/specs/<name>.md`
 Status: Draft | Approved | In Progress | Done
 
 ## Approach
@@ -55,8 +58,9 @@ As soon as the implementation is finished:
 1. Set `Status: Done`.
 2. Fill in **Implementation Notes** with any deviation from the original plan
    and the reason for it.
-3. Go back to `specs/<name>.md` and update its status per `specs/AGENTS.md`.
+3. Go back to `sdd/specs/<name>.md` and update its status per
+   `sdd/specs/AGENTS.md`, refreshing its `Updated` date.
 4. If this work affected the behavior of any other already-implemented
-   spec/plan pair, update those too.
+   spec/plan pair or any context, update those too.
 
 Never consider a task finished while this update step is pending.

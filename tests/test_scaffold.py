@@ -1,76 +1,17 @@
+import pytest
+
+import os
 from pathlib import Path
 
 from spacekid import cli
-from spacekid.scaffold import detect_mode, scaffold, scaffold_brain
+from spacekid.scaffold import scaffold
 
-
-def test_fresh_project_creates_all_three_files_with_name_from_pyproject(tmp_path: Path) -> None:
-    (tmp_path / "pyproject.toml").write_text('[project]\nname = "widgets"\n', encoding="utf-8")
-
-    results = scaffold(tmp_path)
-
-    assert [r.status for r in results] == ["created", "created", "created"]
-    assert "Agent Guide — widgets" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
-    assert (tmp_path / "specs" / "AGENTS.md").exists()
-    assert (tmp_path / "plans" / "AGENTS.md").exists()
-
-
-def test_fresh_project_falls_back_to_directory_name(tmp_path: Path) -> None:
-    project = tmp_path / "my-project"
-    project.mkdir()
-
-    scaffold(project)
-
-    assert "Agent Guide — my-project" in (project / "AGENTS.md").read_text(encoding="utf-8")
-
-
-def test_explicit_name_overrides_detection(tmp_path: Path) -> None:
-    (tmp_path / "pyproject.toml").write_text('[project]\nname = "widgets"\n', encoding="utf-8")
-
-    scaffold(tmp_path, app_name="override")
-
-    assert "Agent Guide — override" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
-
-
-def test_existing_root_agents_md_is_left_untouched(tmp_path: Path) -> None:
-    existing = "# My own AGENTS.md\n\ncustom content\n"
-    (tmp_path / "AGENTS.md").write_text(existing, encoding="utf-8")
-
-    results = scaffold(tmp_path)
-
-    root_result = next(r for r in results if r.path.name == "AGENTS.md" and r.path.parent == tmp_path)
-    assert root_result.status == "skipped"
-    assert (tmp_path / "AGENTS.md").read_text(encoding="utf-8") == existing
-
-
-def test_existing_specs_and_plans_agents_md_are_appended_to(tmp_path: Path) -> None:
-    (tmp_path / "specs").mkdir()
-    (tmp_path / "plans").mkdir()
-    existing_specs = "# Our own spec rules\n\ndo it our way\n"
-    existing_plans = "# Our own plan rules\n\ndo it our way\n"
-    (tmp_path / "specs" / "AGENTS.md").write_text(existing_specs, encoding="utf-8")
-    (tmp_path / "plans" / "AGENTS.md").write_text(existing_plans, encoding="utf-8")
-
-    results = scaffold(tmp_path)
-
-    statuses = {r.path.parent.name: r.status for r in results if r.path.name == "AGENTS.md"}
-    assert statuses["specs"] == "appended"
-    assert statuses["plans"] == "appended"
-
-    specs_content = (tmp_path / "specs" / "AGENTS.md").read_text(encoding="utf-8")
-    plans_content = (tmp_path / "plans" / "AGENTS.md").read_text(encoding="utf-8")
-    assert specs_content.startswith(existing_specs)
-    assert "Writing Specs" in specs_content
-    assert plans_content.startswith(existing_plans)
-    assert "Writing Implementation Plans" in plans_content
-
-
-def test_missing_specs_and_plans_directories_are_created(tmp_path: Path) -> None:
-    scaffold(tmp_path)
-
-    assert (tmp_path / "specs" / "AGENTS.md").is_dir() is False
-    assert (tmp_path / "specs" / "AGENTS.md").exists()
-    assert (tmp_path / "plans" / "AGENTS.md").exists()
+_GUIDES = (
+    "contexts/AGENTS.md",
+    "artifacts/AGENTS.md",
+    "sdd/specs/AGENTS.md",
+    "sdd/plans/AGENTS.md",
+)
 
 
 def _fake_repo(parent: Path, name: str) -> Path:
@@ -79,99 +20,8 @@ def _fake_repo(parent: Path, name: str) -> Path:
     return repo
 
 
-def test_detect_mode_two_repos_is_brain(tmp_path: Path) -> None:
-    _fake_repo(tmp_path, "api")
-    _fake_repo(tmp_path, "web")
-
-    assert detect_mode(tmp_path) == "brain"
-
-
-def test_detect_mode_one_or_no_repos_is_project(tmp_path: Path) -> None:
-    assert detect_mode(tmp_path) == "project"
-    _fake_repo(tmp_path, "api")
-    assert detect_mode(tmp_path) == "project"
-
-
-def test_detect_mode_directory_that_is_a_repo_is_project(tmp_path: Path) -> None:
-    (tmp_path / ".git").mkdir()
-    _fake_repo(tmp_path, "api")
-    _fake_repo(tmp_path, "web")
-
-    assert detect_mode(tmp_path) == "project"
-
-
-def test_fresh_brain_creates_full_tree(tmp_path: Path) -> None:
-    results = scaffold_brain(tmp_path)
-
-    assert {r.status for r in results} == {"created"}
-    brain = tmp_path / "brain"
-    assert (brain / "AGENTS.md").is_file()
-    assert (brain / "sdd" / "specs" / "AGENTS.md").is_file()
-    assert (brain / "sdd" / "plans" / "AGENTS.md").is_file()
-    assert (brain / "contexts" / ".gitkeep").is_file()
-    assert (brain / "artifacts" / ".gitkeep").is_file()
-
-
-def test_brain_sdd_rules_match_project_mode(tmp_path: Path) -> None:
-    project = tmp_path / "p"
-    brain_root = tmp_path / "b"
-    project.mkdir()
-    brain_root.mkdir()
-    scaffold(project)
-    scaffold_brain(brain_root)
-
-    for kind in ("specs", "plans"):
-        assert (project / kind / "AGENTS.md").read_text(encoding="utf-8") == (
-            brain_root / "brain" / "sdd" / kind / "AGENTS.md"
-        ).read_text(encoding="utf-8")
-
-
-def test_existing_brain_agents_untouched_and_sdd_appended(tmp_path: Path) -> None:
-    brain = tmp_path / "brain"
-    (brain / "sdd" / "specs").mkdir(parents=True)
-    (brain / "AGENTS.md").write_text("mine\n", encoding="utf-8")
-    (brain / "sdd" / "specs" / "AGENTS.md").write_text("old\n", encoding="utf-8")
-
-    results = scaffold_brain(tmp_path)
-
-    statuses = {r.path.relative_to(brain).as_posix(): r.status for r in results}
-    assert statuses["AGENTS.md"] == "skipped"
-    assert statuses["sdd/specs/AGENTS.md"] == "appended"
-    assert statuses["sdd/plans/AGENTS.md"] == "created"
-    assert (brain / "AGENTS.md").read_text(encoding="utf-8") == "mine\n"
-    assert (brain / "sdd" / "specs" / "AGENTS.md").read_text(encoding="utf-8").startswith("old\n")
-
-
-def test_brain_agents_states_context_first_and_placement_rule(tmp_path: Path) -> None:
-    scaffold_brain(tmp_path)
-    text = (tmp_path / "brain" / "AGENTS.md").read_text(encoding="utf-8")
-
-    assert "Context (mandatory first step)" in text
-    assert "saved as a context" in text
-    assert "is an artifact" in text
-    assert "{{APP_NAME}}" not in text
-
-
-def test_cli_mode_flag_overrides_detection(tmp_path: Path) -> None:
-    cli.main(["init", "--path", str(tmp_path), "--mode", "brain"])
-    assert (tmp_path / "brain" / "AGENTS.md").is_file()
-
-    other = tmp_path / "ws"
-    other.mkdir()
-    _fake_repo(other, "api")
-    _fake_repo(other, "web")
-    cli.main(["init", "--path", str(other), "--mode", "project"])
-    assert (other / "AGENTS.md").is_file()
-    assert not (other / "brain").exists()
-
-
-def test_cli_auto_selects_brain_for_multi_repo_directory(tmp_path: Path) -> None:
-    _fake_repo(tmp_path, "api")
-    _fake_repo(tmp_path, "web")
-
-    cli.main(["init", "--path", str(tmp_path)])
-
-    assert (tmp_path / "brain" / "AGENTS.md").is_file()
+def _tree(root: Path) -> set[str]:
+    return {p.relative_to(root).as_posix() for p in root.rglob("*") if p.is_file()}
 
 
 def _snapshot(root: Path) -> dict[str, str]:
@@ -182,7 +32,116 @@ def _snapshot(root: Path) -> dict[str, str]:
     }
 
 
-def test_project_second_run_changes_nothing(tmp_path: Path) -> None:
+def test_fresh_directory_creates_full_miniverse(tmp_path: Path) -> None:
+    results = scaffold(tmp_path)
+
+    assert {r.status for r in results} == {"created"}
+    mv = tmp_path / "miniverse"
+    assert (tmp_path / "AGENTS.md").is_file()
+    assert (mv / "AGENTS.md").is_file()
+    assert (mv / ".miniverse").is_file()
+    assert (mv / "scan.sh").is_file()
+    assert (mv / "catalog.md").is_file()
+    for guide in _GUIDES:
+        assert (mv / guide).is_file()
+    assert (mv / "contexts" / ".gitkeep").is_file()
+    assert (mv / "artifacts" / ".gitkeep").is_file()
+
+
+def test_structure_is_identical_for_repo_multi_repo_and_empty_directories(tmp_path: Path) -> None:
+    single = tmp_path / "single"
+    (single / ".git").mkdir(parents=True)
+    multi = tmp_path / "multi"
+    _fake_repo(multi, "api")
+    _fake_repo(multi, "web")
+    empty = tmp_path / "empty"
+    empty.mkdir()
+
+    trees = []
+    for directory in (single, multi, empty):
+        scaffold(directory, app_name="x")
+        trees.append({p for p in _tree(directory) if not p.startswith(("api/", "web/", ".git/"))})
+
+    assert trees[0] == trees[1] == trees[2]
+
+
+def test_name_comes_from_pyproject_then_directory_then_override(tmp_path: Path) -> None:
+    (tmp_path / "pyproject.toml").write_text('[project]\nname = "widgets"\n', encoding="utf-8")
+    scaffold(tmp_path)
+    assert "Agent Guide — widgets" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+    assert (tmp_path / "miniverse" / ".miniverse").read_text(encoding="utf-8") == "widgets\n"
+
+    folder = tmp_path / "my-project"
+    folder.mkdir()
+    scaffold(folder)
+    assert "Agent Guide — my-project" in (folder / "AGENTS.md").read_text(encoding="utf-8")
+
+    other = tmp_path / "other"
+    other.mkdir()
+    scaffold(other, app_name="override")
+    assert "Miniverse — override" in (other / "miniverse" / "AGENTS.md").read_text(encoding="utf-8")
+
+
+def test_root_agents_is_a_short_pointer_to_the_miniverse(tmp_path: Path) -> None:
+    scaffold(tmp_path)
+    text = (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+
+    assert "miniverse/AGENTS.md" in text
+    assert len(text.splitlines()) < 40
+    assert "AGENT TODO" in text
+    assert "{{APP_NAME}}" not in text
+
+
+def test_existing_root_agents_md_is_left_untouched(tmp_path: Path) -> None:
+    existing = "# My own AGENTS.md\n\ncustom content\n"
+    (tmp_path / "AGENTS.md").write_text(existing, encoding="utf-8")
+
+    results = scaffold(tmp_path)
+
+    root_result = next(r for r in results if r.path == tmp_path / "AGENTS.md")
+    assert root_result.status == "skipped"
+    assert (tmp_path / "AGENTS.md").read_text(encoding="utf-8") == existing
+
+
+def test_existing_folder_guides_are_appended_to_and_miniverse_guide_skipped(tmp_path: Path) -> None:
+    mv = tmp_path / "miniverse"
+    for guide in _GUIDES:
+        (mv / guide).parent.mkdir(parents=True, exist_ok=True)
+        (mv / guide).write_text("old\n", encoding="utf-8")
+    (mv / "AGENTS.md").write_text("mine\n", encoding="utf-8")
+
+    results = scaffold(tmp_path)
+
+    statuses = {r.path.relative_to(mv).as_posix(): r.status for r in results if r.path.is_relative_to(mv)}
+    assert statuses["AGENTS.md"] == "skipped"
+    for guide in _GUIDES:
+        assert statuses[guide] == "appended"
+        assert (mv / guide).read_text(encoding="utf-8").startswith("old\n")
+    assert (mv / "AGENTS.md").read_text(encoding="utf-8") == "mine\n"
+
+
+def test_scanner_and_marker_are_never_overwritten(tmp_path: Path) -> None:
+    mv = tmp_path / "miniverse"
+    mv.mkdir()
+    (mv / "scan.sh").write_text("custom\n", encoding="utf-8")
+    (mv / ".miniverse").write_text("custom\n", encoding="utf-8")
+
+    results = scaffold(tmp_path)
+
+    statuses = {r.path.name: r.status for r in results}
+    assert statuses["scan.sh"] == "skipped"
+    assert statuses[".miniverse"] == "skipped"
+    assert (mv / "scan.sh").read_text(encoding="utf-8") == "custom\n"
+    assert (mv / ".miniverse").read_text(encoding="utf-8") == "custom\n"
+
+
+def test_scanner_is_executable(tmp_path: Path) -> None:
+    scaffold(tmp_path)
+
+    assert os.access(tmp_path / "miniverse" / "scan.sh", os.X_OK)
+
+
+def test_second_run_changes_nothing(tmp_path: Path) -> None:
     scaffold(tmp_path)
     before = _snapshot(tmp_path)
 
@@ -192,22 +151,72 @@ def test_project_second_run_changes_nothing(tmp_path: Path) -> None:
     assert _snapshot(tmp_path) == before
 
 
-def test_brain_second_run_changes_nothing(tmp_path: Path) -> None:
-    scaffold_brain(tmp_path)
-    before = _snapshot(tmp_path)
-
-    results = scaffold_brain(tmp_path)
-
-    assert {r.status for r in results} == {"skipped"}
-    assert _snapshot(tmp_path) == before
-
-
 def test_user_edits_around_the_rules_do_not_trigger_another_append(tmp_path: Path) -> None:
     scaffold(tmp_path)
-    path = tmp_path / "specs" / "AGENTS.md"
+    path = tmp_path / "miniverse" / "sdd" / "specs" / "AGENTS.md"
     edited = "# Mine\n\n" + path.read_text(encoding="utf-8") + "\nextra notes\n"
     path.write_text(edited, encoding="utf-8")
 
     scaffold(tmp_path)
 
     assert path.read_text(encoding="utf-8") == edited
+
+
+def test_cli_init_creates_miniverse_and_has_no_mode_option(
+    tmp_path: Path, capsys: "pytest.CaptureFixture[str]"
+) -> None:
+    cli.main(["init", "--path", str(tmp_path)])
+
+    assert (tmp_path / "miniverse" / "AGENTS.md").is_file()
+    assert "mode" not in capsys.readouterr().out
+
+
+def test_miniverse_guide_puts_the_flow_first_and_states_its_rules(tmp_path: Path) -> None:
+    scaffold(tmp_path)
+    text = (tmp_path / "miniverse" / "AGENTS.md").read_text(encoding="utf-8")
+
+    assert text.index("## The Flow") < text.index("## Map")
+    assert text.index("## The Flow") < text.index("## Where Things Go")
+    assert "Context (mandatory first step)" in text
+    assert "saved as a context" in text
+    assert "is an artifact" in text
+    assert "./scan.sh" in text and "catalog.md" in text
+    assert "before starting any spec and before starting any plan" in text
+    assert "never search the file tree" in text
+    assert "Reuse the nested `contexts/`" in text
+    assert "limitations" in text and "decisions" in text
+    assert "higher-level spec prevails" in text
+    assert "the higher the level, the higher the precedence" in text
+    assert "Traceability" in text
+    assert "read that folder's" in text
+    for guide in ("contexts/AGENTS.md", "artifacts/AGENTS.md", "sdd/specs/AGENTS.md", "sdd/plans/AGENTS.md"):
+        assert guide in text
+    assert "{{APP_NAME}}" not in text
+
+
+def test_spec_rules_require_dates_and_traceability(tmp_path: Path) -> None:
+    scaffold(tmp_path)
+    text = (tmp_path / "miniverse" / "sdd" / "specs" / "AGENTS.md").read_text(encoding="utf-8")
+
+    assert "Created:" in text and "Updated:" in text
+    assert "## Traceability" in text
+    assert "only place a spec may point to other files" in text
+    assert "(added YYYY-MM-DD)" in text
+
+
+def test_plan_context_and_artifact_rules_require_registration(tmp_path: Path) -> None:
+    scaffold(tmp_path)
+    mv = tmp_path / "miniverse"
+
+    for guide in ("sdd/plans", "contexts", "artifacts"):
+        text = (mv / guide / "AGENTS.md").read_text(encoding="utf-8")
+        assert "Traceability" in text
+        assert "`Updated` date" in text
+
+
+def test_context_rules_require_summary_and_dates(tmp_path: Path) -> None:
+    scaffold(tmp_path)
+    text = (tmp_path / "miniverse" / "contexts" / "AGENTS.md").read_text(encoding="utf-8")
+
+    assert "Summary:" in text and "Created:" in text and "Updated:" in text
+    assert "one line" in text

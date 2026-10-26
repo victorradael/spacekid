@@ -26,11 +26,9 @@ _STATUS_STYLE = {
 }
 
 _MENU = (
-    ("1", "Initialize this project (auto-detect mode)", "auto"),
-    ("2", "Initialize as a single project", "project"),
-    ("3", "Initialize a multi-repo directory (brain)", "brain"),
-    ("4", "About SpaceKid", "about"),
-    ("5", "Quit", "quit"),
+    ("1", "Create a miniverse here", "init"),
+    ("2", "About SpaceKid", "about"),
+    ("3", "Quit", "quit"),
 )
 
 
@@ -69,10 +67,6 @@ def banner(version: str) -> str:
     lines = [paint(line, color, bold=True) for line, color in zip(_BANNER_LINES, _GRADIENT)]
     lines.append(paint(f" {_TAGLINE}  ·  v{version}", 245, dim=True))
     return "\n".join(lines)
-
-
-def heading(mode: str) -> str:
-    return f"{paint('mode:', 244)} {paint(mode, 39, bold=True)}"
 
 
 def status_line(status: str, rel_path: object) -> str:

@@ -1,19 +1,80 @@
 ![SpaceKid](https://raw.githubusercontent.com/victorradael/spacekid/main/assets/spacekid_logo.jpg)
 
-A minimalist spec kit for agentic development. One command drops a small set
-of `AGENTS.md` files into your project so AI agents (and humans) work from a
-single closed loop — **spec → plan → implementation → update** — instead of
-ad-hoc prompting. It works on projects in any language.
+A minimalist spec kit for agentic development. One command creates a
+**miniverse** in your directory: a small, self-contained world holding the
+knowledge, the produced files and the spec-driven workflow that AI agents (and
+humans) need to work well — instead of ad-hoc prompting. It works on projects
+in any language.
 
 > **Study project.** SpaceKid is a personal project built to learn and evolve
 > my own knowledge of AI-assisted development. It is public so it can be read,
 > tried and discussed, but it is not a supported product: expect rough edges,
 > breaking changes and no stability guarantees.
 
+## The flow
+
+The flow is the heart of SpaceKid. Every piece of work goes through the same
+steps, in this order, with no skipping:
+
+```mermaid
+flowchart LR
+    A["0. Context\nrun ./scan.sh,\nread catalog.md,\nconsult or create contexts"] --> B["1. Spec\nbusiness intent,\nacceptance criteria"]
+    B --> C["2. Plan\ntechnical design\nKISS + SOLID"]
+    C --> D["3. Implementation\ncode, following\nthe plan"]
+    D --> E["4. Close the loop\nstatuses, deviations,\ncontexts, traceability"]
+    E -.->|"next piece of work"| A
+
+    style A fill:#fff4cc,stroke:#a16207
+    style B fill:#e0f2ff,stroke:#0369a1
+    style C fill:#e0f7ea,stroke:#15803d
+    style D fill:#fef3e0,stroke:#b45309
+    style E fill:#fbe0f0,stroke:#a21caf
+```
+
+0. **Context (mandatory first step).** Before any work, run the miniverse's
+   `scan.sh` (it refreshes `catalog.md`), read the catalog, consult the
+   existing contexts and create the missing ones the task depends on.
+1. **Spec** — what and why, in business terms: context, requirements,
+   acceptance criteria. No code. Carries a creation date, a last-updated date
+   and a traceability section.
+2. **Plan** — how to build it, the simplest design that satisfies the spec.
+   Run `scan.sh` again before starting it.
+3. **Implementation** — code exactly what the plan says, only after the spec
+   and the plan exist and are approved.
+4. **Close the loop** — as soon as the work is done, set the plan to `Done` and
+   the spec to `Implemented`, record deviations, bring affected specs, plans
+   and contexts up to date, and register every plan, context and artifact in
+   the originating spec's traceability section (with the date it was added),
+   refreshing the spec's last-updated date.
+
+Around the loop:
+
+- **Knowledge is a context, anything else is an artifact.** Findings,
+  decisions and explanations are saved in `contexts/` (each with a one-line
+  summary, a creation date and a last-updated date, so an agent can judge
+  relevance without opening it). Diagrams, exports, reports and drafts go in
+  `artifacts/`.
+- **Miniverses nest, to any depth.** A miniverse can sit inside a directory
+  covered by a higher-level one, which can sit inside another, and so on.
+  `scan.sh` finds them by their `.miniverse` marker (not by folder name) and
+  writes `catalog.md`: the miniverse's level, its ancestors (nearest first)
+  and the full tree of nested miniverses, each with its contexts and specs.
+  Agents use the catalog, never a file-tree search, to **reuse contexts**
+  already documented and to read nested specs for limitations and decisions
+  already taken.
+- **Conflicts are resolved before work proceeds.** If a lower-level spec
+  conflicts with a higher-level one, the higher level prevails unless it is
+  deliberately updated. The higher the level, the higher the precedence.
+- **Everything is traceable.** Each spec indexes the plans, contexts and
+  artifacts created from it, each entry dated, so you can follow the process
+  from rule to result.
+
+Every file reads on its own, so any agent can resume cold: read the root
+`AGENTS.md`, then `miniverse/AGENTS.md`, and follow the flow.
+
 ## Quick start
 
-With Docker installed, three steps take you from nothing to a scaffolded
-project. Works on macOS (Apple Silicon and Intel) and Linux; the image is
+With Docker installed, three steps take you from nothing to a miniverse. Works on macOS (Apple Silicon and Intel) and Linux; the image is
 native on both, with no extra flags.
 
 **Requirements.** A container runtime:
@@ -40,25 +101,32 @@ source ~/.zshrc
 
 For fish, run `alias --save spacekid 'docker run -it --rm -e NO_COLOR -u (id -u):(id -g) -v $PWD:/project victorradael/spacekid'` instead.
 
-**3. Use it, from the root of your project.**
+**3. Use it, from the directory you want to work in** — a single repository,
+several repositories side by side, or an empty folder:
 
 ```bash
 spacekid init
 ```
 
 ```
-mode: project
 created: AGENTS.md
-created: specs/AGENTS.md
-created: plans/AGENTS.md
+created: miniverse/AGENTS.md
+created: miniverse/.miniverse
+created: miniverse/scan.sh
+created: miniverse/catalog.md
+created: miniverse/contexts/AGENTS.md
+created: miniverse/artifacts/AGENTS.md
+created: miniverse/sdd/specs/AGENTS.md
+created: miniverse/sdd/plans/AGENTS.md
+created: miniverse/contexts/.gitkeep
+created: miniverse/artifacts/.gitkeep
 ```
 
 From now on, `spacekid` is all you type.
 
 In a color terminal, `init` prints a banner and color-coded results
 (✔ created, ✚ appended, • skipped). Run `spacekid` with no arguments to open an
-interactive menu (initialize a project, initialize a multi-repo directory,
-about, quit). When output is piped or redirected, or `NO_COLOR` is set, the
+interactive menu (create a miniverse, about, quit). When output is piped or redirected, or `NO_COLOR` is set, the
 output stays plain text, and running `spacekid` with no arguments prints the
 usage help instead.
 
@@ -93,17 +161,16 @@ Check the version with `spacekid --version`.
 ## Commands and options
 
 ```
-spacekid [--version] [-h] init [--path PATH] [--name NAME] [--mode {auto,project,brain}]
+spacekid [--version] [-h] init [--path PATH] [--name NAME]
 ```
 
 | Command / option | Description |
 |---|---|
 | `--version` | Print the installed version and exit. |
 | `-h`, `--help` | Show help. Also works after `init`. |
-| `init` | Scaffold the SpaceKid files. The only command. |
-| `init --path PATH` | Directory to scaffold into. It must already exist. Default: current directory. |
-| `init --name NAME` | Project name written into `AGENTS.md`. Default: the `name` in `pyproject.toml` if present, otherwise the directory name. |
-| `init --mode MODE` | `project`, `brain`, or `auto` (default). See [Choosing a mode](#choosing-a-mode). |
+| `init` | Create a miniverse. The only command. |
+| `init --path PATH` | Directory to create the miniverse in. It must already exist. Default: current directory. |
+| `init --name NAME` | Name written into the guides and the marker. Default: the `name` in `pyproject.toml` if present, otherwise the directory name. |
 
 Put the options after `init`. The shortcut already mounts the current
 folder, so `--path` is rarely needed:
@@ -112,82 +179,42 @@ folder, so `--path` is rarely needed:
 spacekid init --name "My App"
 ```
 
-## Choosing a mode
+## The miniverse
 
-SpaceKid has two modes.
-
-- **Project mode** — for a single repository. Adds the workflow files at the
-  project root.
-- **Brain mode** — for a folder that holds several repositories side by side.
-  Adds a `brain/` folder that coordinates work across them.
-
-With `--mode auto` (the default), `init` picks for you and prints the choice
-on its first line:
-
-1. If the directory itself has a `.git`, it is **project** mode.
-2. Otherwise, if two or more of its direct child folders have a `.git`, it is
-   **brain** mode.
-3. Anything else is **project** mode.
-
-Force a mode with `--mode project` or `--mode brain`.
-
-### Project mode
-
-```
-my-app/
-├── AGENTS.md          # entry point: file map, the cycle, the update rule
-├── specs/
-│   └── AGENTS.md      # how to write a spec
-└── plans/
-    └── AGENTS.md      # how to write an implementation plan
-```
-
-```
-$ spacekid init
-mode: project
-created: AGENTS.md
-created: specs/AGENTS.md
-created: plans/AGENTS.md
-```
-
-### Brain mode
-
-For a layout like this (`api` and `web` are git repositories, the parent is
-not):
+SpaceKid has a single model. Whatever the directory — a single repository,
+several repositories side by side, or an empty folder — `init` creates the same
+`miniverse/` folder plus a short root `AGENTS.md` that tells any agent to read
+the miniverse's guide before doing anything.
 
 ```
 workspace/
-├── api/.git
-└── web/.git
-```
-
-```
-$ spacekid init
-mode: brain
-created: brain/AGENTS.md
-created: brain/sdd/specs/AGENTS.md
-created: brain/sdd/plans/AGENTS.md
-created: brain/contexts/.gitkeep
-created: brain/artifacts/.gitkeep
-```
-
-```
-workspace/
-├── api/
-├── web/
-└── brain/
-    ├── AGENTS.md          # folder map, placement rule, and the flow
+├── AGENTS.md              # short: this directory works through a miniverse
+├── api/  web/             # your repositories, untouched (if any)
+└── miniverse/
+    ├── AGENTS.md          # the flow, folder map, placement rule, rules
+    ├── .miniverse         # marker: what makes this folder a miniverse
+    ├── scan.sh            # standalone script that writes catalog.md
+    ├── catalog.md         # generated map of ancestors and nested miniverses
     ├── contexts/          # knowledge produced while working
+    │   └── AGENTS.md      # how to write a context
     ├── artifacts/         # every other generated file
+    │   └── AGENTS.md      # how to organize artifacts
     └── sdd/
-        ├── specs/AGENTS.md
-        └── plans/AGENTS.md
+        ├── specs/AGENTS.md    # how to write a spec
+        └── plans/AGENTS.md    # how to write an implementation plan
 ```
 
-`brain/AGENTS.md` sets the placement rule (knowledge goes to `contexts/`,
-every other generated file to `artifacts/`) and a flow that starts with a
-mandatory context step before any work. The `.gitkeep` files keep the empty
-folders in version control.
+- Every folder that holds a kind of document has its own `AGENTS.md` with the
+  structure and patterns its files follow. Agents read it before creating or
+  editing anything there.
+- `scan.sh` needs only a POSIX shell (`find`, `sort`, `sed`, `tr`, `cmp`, `mv`)
+  and works without SpaceKid or Docker. Run it from the miniverse folder:
+  `./scan.sh`. It never changes your repositories; it only reads them, looking
+  for other miniverses. Repeated runs with nothing changed produce the same
+  `catalog.md`.
+- The `.gitkeep` files keep the empty folders in version control.
+- Migration from the retired `project` and `brain` modes is manual: move your
+  old root `specs/` and `plans/` (or `brain/sdd/`) into `miniverse/sdd/`.
 
 ## Existing files and repeated runs
 
@@ -197,53 +224,26 @@ of three outcomes:
 | Message | When | What happened |
 |---|---|---|
 | `created: <file>` | the file did not exist | written from the template |
-| `appended to: <file>` | `specs/AGENTS.md`, `plans/AGENTS.md` (and their brain-mode equivalents) exist but do not contain the SpaceKid rules | the standard rules were added to the end; your content is kept |
-| `skipped (already exists): <file>` | the file exists and needs nothing: `AGENTS.md`, `brain/AGENTS.md`, the `.gitkeep` files, or a rule file that already contains the SpaceKid rules | left untouched |
+| `appended to: <file>` | one of the four folder guides (`contexts`, `artifacts`, `sdd/specs`, `sdd/plans`) exists but does not contain the SpaceKid rules | the standard rules were added to the end; your content is kept |
+| `skipped (already exists): <file>` | the file exists and needs nothing: `AGENTS.md`, `miniverse/AGENTS.md`, `.miniverse`, `scan.sh`, `catalog.md`, the `.gitkeep` files, or a folder guide that already contains the SpaceKid rules | left untouched |
 
-Running `init` again is safe: a project that is already scaffolded is left
+Running `init` again is safe: a directory that already has a miniverse is left
 exactly as it is, even if you edited the files around the rules.
 
 ```
-$ spacekid init        # second run in the same project
-mode: project
+$ spacekid init        # second run in the same directory
 skipped (already exists): AGENTS.md
-skipped (already exists): specs/AGENTS.md
-skipped (already exists): plans/AGENTS.md
+skipped (already exists): miniverse/AGENTS.md
+skipped (already exists): miniverse/.miniverse
+skipped (already exists): miniverse/scan.sh
+skipped (already exists): miniverse/catalog.md
+skipped (already exists): miniverse/contexts/AGENTS.md
+skipped (already exists): miniverse/artifacts/AGENTS.md
+skipped (already exists): miniverse/sdd/specs/AGENTS.md
+skipped (already exists): miniverse/sdd/plans/AGENTS.md
+skipped (already exists): miniverse/contexts/.gitkeep
+skipped (already exists): miniverse/artifacts/.gitkeep
 ```
-
-## The working loop
-
-Every feature follows the same four steps, in this order:
-
-```mermaid
-flowchart LR
-    A["1. Spec\nspecs/name.md\nbusiness intent,\nacceptance criteria"] --> B["2. Plan\nplans/name.md\ntechnical design\nKISS + SOLID"]
-    B --> C["3. Implementation\ncode, following\nthe plan"]
-    C --> D["4. Update\nspec + plan status,\nrecord deviations"]
-    D -.->|"next feature"| A
-    D -.->|"if it touches\nprior work"| A2["Update older\nspecs/plans too"]
-
-    style A fill:#e0f2ff,stroke:#0369a1
-    style B fill:#e0f7ea,stroke:#15803d
-    style C fill:#fef3e0,stroke:#b45309
-    style D fill:#fbe0f0,stroke:#a21caf
-```
-
-1. **Spec** — write `specs/<name>.md`: what and why, in business terms
-   (context, requirements, acceptance criteria). No code, no references to
-   other files.
-2. **Plan** — write `plans/<name>.md`: how to build it, the simplest design
-   that satisfies the spec. It is the only file allowed to reference the spec.
-3. **Implementation** — code exactly what the plan says, only after both
-   files exist and are approved.
-4. **Update** — as soon as the work is done, mark the plan `Done` (recording
-   any deviation and why) and the spec `Implemented`, and update any other
-   spec or plan whose behavior you touched.
-
-The loop only closes at step 4. Each file points one way — plan to spec, never
-the reverse — so every file reads on its own and any agent can resume cold:
-read `AGENTS.md`, then the relevant spec and plan, and have the full picture
-without digging through chat history.
 
 ## Troubleshooting
 
@@ -276,11 +276,11 @@ is in your profile.
 **Files created by Docker belong to `root` (or another user).**
 Use the `spacekid` shortcut from the Quick start, which already includes
 `-u "$(id -u):$(id -g)"`. To
-fix files already created (Linux): `sudo chown -R "$(id -u):$(id -g)" specs plans AGENTS.md`.
+fix files already created (Linux): `sudo chown -R "$(id -u):$(id -g)" miniverse AGENTS.md`.
 
 On macOS the same shortcut works (`id -u` and `id -g` return your macOS user
 and group, and Docker Desktop shares the folder with your ownership). The
-`chown` fix above is Linux-only; on macOS use `sudo chown -R "$(id -u):$(id -g)" specs plans AGENTS.md` as well if you ever need it.
+`chown` fix above is Linux-only; on macOS use `sudo chown -R "$(id -u):$(id -g)" miniverse AGENTS.md` as well if you ever need it.
 
 **`permission denied` when the container writes.**
 The container user needs write access to the mounted directory. Run with `-u
@@ -290,9 +290,6 @@ The container user needs write access to the mounted directory. Run with `-u
 Check the volume: `-v "$PWD:/project"` must be present, and the container
 works on `/project`. Without it, files are written inside the throwaway
 container and lost.
-
-**It chose brain mode (or project mode) and I wanted the other.**
-Pass `--mode project` or `--mode brain`. See [Choosing a mode](#choosing-a-mode).
 
 **`FileNotFoundError` with `--path`.**
 The directory given to `--path` must exist. Create it first.
@@ -308,8 +305,8 @@ image and create the shortcut, and run `spacekid init` as before. The short
 
 - Report bugs and ideas at <https://github.com/victorradael/spacekid/issues>.
 - Contributions are welcome as pull requests. This project follows its own
-  loop: propose a spec in `specs/`, then a plan in `plans/`, then the code.
-  Read `AGENTS.md` in the repository first.
+  loop: start from context, then a spec in `miniverse/sdd/specs/`, then a plan in
+  `miniverse/sdd/plans/`, then the code. Read `AGENTS.md` in the repository first.
 - Commits follow [Conventional Commits](https://www.conventionalcommits.org/);
   releases are generated from them.
 - The CLI is written in Python. That is an internal detail, not something
@@ -319,11 +316,11 @@ image and create the shortcut, and run `spacekid init` as before. The short
 ## Repository layout
 
 ```
-/AGENTS.md           # entry point: maps the repo, enforces the cycle
-/specs/AGENTS.md     # how to write a good spec
-/specs/<name>.md     # one per feature, business-only
-/plans/AGENTS.md     # how to write a good implementation plan
-/plans/<name>.md     # one per spec, technical design + status
+/AGENTS.md                         # short pointer to the miniverse
+/miniverse/AGENTS.md               # the flow, folder map and rules
+/miniverse/contexts/               # SpaceKid's own knowledge
+/miniverse/sdd/specs/<name>.md     # one per feature, business-only
+/miniverse/sdd/plans/<name>.md     # one per spec, technical design + status
 /src/spacekid/       # the CLI
 /Dockerfile          # container image wrapping the CLI
 /DOCKERHUB.md        # Docker Hub page, synced on release
@@ -332,5 +329,5 @@ image and create the shortcut, and run `spacekid init` as before. The short
 
 ## Language
 
-All documentation — specs, plans, `AGENTS.md` files, this README — is written
+All documentation — specs, plans, contexts, `AGENTS.md` files, this README — is written
 in English, regardless of the language used in conversation with the agent.

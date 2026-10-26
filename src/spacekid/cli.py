@@ -7,7 +7,7 @@ from importlib.metadata import version
 from pathlib import Path
 
 from spacekid import ui
-from spacekid.scaffold import detect_mode, scaffold, scaffold_brain
+from spacekid.scaffold import scaffold
 
 _STATUS_LABEL = {
     "created": "created",
@@ -22,10 +22,7 @@ def _init(args: argparse.Namespace) -> int:
     if colored:
         print(ui.banner(version("spacekid")))
         print()
-    mode = detect_mode(project_root) if args.mode == "auto" else args.mode
-    print(ui.heading(mode) if colored else f"mode: {mode}")
-    run = scaffold_brain if mode == "brain" else scaffold
-    results = run(project_root, app_name=args.name)
+    results = scaffold(project_root, app_name=args.name)
     for result in results:
         rel = result.path.relative_to(project_root)
         if colored:
@@ -38,8 +35,9 @@ def _init(args: argparse.Namespace) -> int:
 def _about() -> None:
     print(ui.banner(version("spacekid")))
     print()
-    print("SpaceKid scaffolds the spec -> plan -> implementation cycle for agentic")
-    print("development. Run `spacekid init --help` for the command-line options.")
+    print("SpaceKid creates a miniverse: a self-contained world of contexts, artifacts,")
+    print("and a spec-driven workflow. The flow: context -> spec -> plan ->")
+    print("implementation -> close the loop. Run `spacekid init --help` for options.")
 
 
 def _menu() -> int:
@@ -51,7 +49,7 @@ def _menu() -> int:
     if action == "about":
         _about()
         return 0
-    return _init(argparse.Namespace(path=".", name=None, mode=action))
+    return _init(argparse.Namespace(path=".", name=None))
 
 
 class _Parser(argparse.ArgumentParser):
@@ -68,19 +66,13 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(dest="command")
 
     init_parser = subparsers.add_parser(
-        "init", help="scaffold the SpaceKid AGENTS.md cycle in a project"
+        "init", help="create a miniverse in a directory"
     )
     init_parser.add_argument(
-        "--path", default=".", help="project root to scaffold into (default: current directory)"
+        "--path", default=".", help="directory to create the miniverse in (default: current directory)"
     )
     init_parser.add_argument(
-        "--name", default=None, help="project name for AGENTS.md (default: auto-detected)"
-    )
-    init_parser.add_argument(
-        "--mode",
-        choices=["auto", "project", "brain"],
-        default="auto",
-        help="usage mode: project, brain (multi-repo directory), or auto-detect (default)",
+        "--name", default=None, help="name for the miniverse guides (default: auto-detected)"
     )
     init_parser.set_defaults(func=_init)
 
