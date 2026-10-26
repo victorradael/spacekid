@@ -12,8 +12,14 @@ ad-hoc prompting. It works on projects in any language.
 
 ## Quick start
 
-With [Docker](https://docs.docker.com/get-docker/) installed, three steps take
-you from nothing to a scaffolded project.
+With Docker installed, three steps take you from nothing to a scaffolded
+project. Works on macOS (Apple Silicon and Intel) and Linux; the image is
+native on both, with no extra flags.
+
+**Requirements.** A container runtime:
+[Docker Desktop](https://docs.docker.com/desktop/setup/install/mac-install/),
+[OrbStack](https://orbstack.dev/) or [Colima](https://github.com/abiosoft/colima)
+on macOS; [Docker Engine](https://docs.docker.com/engine/install/) on Linux.
 
 **1. Download the image (once).**
 
@@ -22,8 +28,8 @@ docker pull victorradael/spacekid
 ```
 
 **2. Create the `spacekid` command (once).** This adds a shortcut to your
-shell profile so it survives new terminals. Use `~/.zshrc` for zsh or
-`~/.bashrc` for bash:
+shell profile so it survives new terminals. Use `~/.zshrc` for zsh (the macOS
+default) or `~/.bashrc` for bash (`~/.bash_profile` on macOS):
 
 ```bash
 cat >> ~/.zshrc <<'EOF'
@@ -245,8 +251,8 @@ without digging through chat history.
 peer`).
 Run `docker pull victorradael/spacekid` again: layers already downloaded are
 kept, so it resumes. If it keeps failing with an IPv6 address in the error
-(like `[2600:9000:...]:443`), your IPv6 route to Docker is broken. Disable
-IPv6, pull, then turn it back on (replace `wlp0s20f3` with your interface
+(like `[2600:9000:...]:443`), your IPv6 route to Docker is broken. **Linux
+only:** disable IPv6, pull, then turn it back on (replace `wlp0s20f3` with your interface
 from `ip -br link show up`):
 
 ```bash
@@ -259,17 +265,22 @@ docker pull victorradael/spacekid
 sudo sysctl -w net.ipv6.conf.wlp0s20f3.disable_ipv6=0
 ```
 
-Rebooting also reverts it.
+Rebooting also reverts it. On macOS there is no equivalent command: restart
+Docker Desktop (or OrbStack/Colima), check your network or VPN, and try again.
 
 **`spacekid: command not found` after the Quick start.**
 The shortcut is not loaded in this terminal. Run `source ~/.zshrc` (or
-`source ~/.bashrc`), or open a new terminal, and check that the `alias` line
+`source ~/.bashrc`; `source ~/.bash_profile` for bash on macOS), or open a new terminal, and check that the `alias` line
 is in your profile.
 
 **Files created by Docker belong to `root` (or another user).**
 Use the `spacekid` shortcut from the Quick start, which already includes
 `-u "$(id -u):$(id -g)"`. To
-fix files already created: `sudo chown -R "$(id -u):$(id -g)" specs plans AGENTS.md`.
+fix files already created (Linux): `sudo chown -R "$(id -u):$(id -g)" specs plans AGENTS.md`.
+
+On macOS the same shortcut works (`id -u` and `id -g` return your macOS user
+and group, and Docker Desktop shares the folder with your ownership). The
+`chown` fix above is Linux-only; on macOS use `sudo chown -R "$(id -u):$(id -g)" specs plans AGENTS.md` as well if you ever need it.
 
 **`permission denied` when the container writes.**
 The container user needs write access to the mounted directory. Run with `-u

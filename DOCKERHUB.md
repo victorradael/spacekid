@@ -10,7 +10,11 @@ language.
 
 ## Quick start
 
-Three steps, from nothing to a scaffolded project.
+Three steps, from nothing to a scaffolded project. Works on macOS (Apple
+Silicon and Intel) and Linux; the image is native on both, with no extra flags.
+
+**Requirements.** A container runtime: Docker Desktop, OrbStack or Colima on
+macOS; Docker Engine on Linux.
 
 **1. Download the image (once).**
 
@@ -19,8 +23,8 @@ docker pull victorradael/spacekid
 ```
 
 **2. Create the `spacekid` command (once).** This adds a shortcut to your
-shell profile so it survives new terminals. Use `~/.zshrc` for zsh or
-`~/.bashrc` for bash:
+shell profile so it survives new terminals. Use `~/.zshrc` for zsh (the macOS
+default) or `~/.bashrc` for bash (`~/.bash_profile` on macOS):
 
 ```bash
 cat >> ~/.zshrc <<'EOF'
