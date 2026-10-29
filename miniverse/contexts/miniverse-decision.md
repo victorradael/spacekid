@@ -22,6 +22,5 @@ for several repositories) were collapsed into it.
 
 - No `--mode` option and no detection. The change is breaking for users of it;
   migration of old layouts is manual and out of scope.
-- Higher-level knowledge is reachable through nesting: miniverses can sit
-  inside directories covered by others, and `scan.sh` maps the hierarchy.
+- Nested knowledge is reachable through nesting: `scan.sh` lists the miniverses below a level by path.
 - Old `brain-mode` spec and plan are kept as superseded history.

@@ -2,7 +2,7 @@
 
 Status: Implemented
 Created: 2026-10-26
-Updated: 2026-10-26
+Updated: 2026-10-29
 
 ## Context
 
@@ -78,20 +78,19 @@ SpaceKid creates a miniverse, and all work flows from it.
   directories it covers for other miniverses and records what it finds in a
   catalog stored inside the miniverse. The script must work on its own,
   without requiring SpaceKid to be available.
-- The catalog must map the full hierarchy around the miniverse so an agent can
-  navigate it without getting lost:
-  - **Position:** the miniverse's own level in the hierarchy, counted from the
-    top-most miniverse above it.
-  - **Ancestors:** every higher-level miniverse, in order from the nearest to
-    the top-most.
-  - **Descendants:** every lower-level miniverse at every depth, shown as a
-    tree that makes each one's parent and level clear.
-  - **Content:** for every ancestor and descendant, its contexts (with their
-    summaries and dates) and its specs (with their status and dates).
+- The catalog must be lean: it lists only the miniverses nested below this one,
+  at every depth, shown as a tree that makes each one's depth clear, and gives
+  only the location of each. It must not list ancestors, levels, contexts, or
+  specs: the agent goes to the nested miniverse and reads what it needs there.
   - Locations must be given in a way an agent can follow directly from the
     miniverse, with no guessing.
-  The purpose is to let agents reach the contexts and specs of any related
-  miniverse, above or below, without spending effort searching for them.
+  The purpose is to let agents reach the contexts and specs of any nested
+  miniverse without spending effort searching for it, while keeping the
+  catalog small.
+- The catalog script's own output follows the visual style of the SpaceKid
+  command on a terminal, with a compact one-line mark instead of the large
+  logo, and stays plain when piped, redirected, or when color
+  is opted out.
 - The flow must require the agent to run the script before starting any spec or
   plan, so the catalog is current, and to use the catalog, rather than
   searching the file tree, to reach nested contexts and specs.
@@ -149,13 +148,9 @@ SpaceKid creates a miniverse, and all work flows from it.
       recognized by that marker even if its folder has a different name.
 - [x] Every created miniverse contains a script that, run on its own, scans the
       covered directories and writes a catalog inside the miniverse.
-- [x] With three or more levels of nesting (a miniverse inside a parent inside
-      another), the catalog of each one shows its level, the full chain of
-      ancestors from nearest to top-most, and the complete tree of
-      descendants with each node's parent and level, with followable
-      locations.
-- [x] For every ancestor and descendant, the catalog lists contexts (summary,
-      dates) and specs (status, dates).
+- [x] With three or more levels of nesting, the catalog of each miniverse
+      lists the complete tree of its nested miniverses, each with a followable
+      location, and nothing else: no ancestors, levels, contexts, or specs.
 - [x] Contexts, artifacts, specs, and plans folders each contain their own
       `AGENTS.md` describing structure and file patterns, and the
       miniverse's `AGENTS.md` requires reading it before writing there.
@@ -204,6 +199,6 @@ SpaceKid creates a miniverse, and all work flows from it.
 
 ## Traceability
 
-- Plans: `sdd/plans/miniverse.md` (added 2026-10-26)
+- Plans: `sdd/plans/miniverse.md` (added 2026-10-26), `sdd/plans/repo-sync.md` (added 2026-10-29)
 - Contexts: `contexts/architecture.md` (added 2026-10-26), `contexts/miniverse-decision.md` (added 2026-10-26)
 - Artifacts: —

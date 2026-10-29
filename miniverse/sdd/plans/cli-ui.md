@@ -27,7 +27,8 @@ banner, menu, and colored result lines.
 2. `cli.py`:
    - Make the subcommand optional. With no command: interactive (color TTY on
      stdin and stdout) → menu; otherwise print help and return 0.
-   - Print the banner before `init` only when color is supported.
+   - Print the banner before `init` only when color is supported. (Revised
+     2026-10-29: the big banner is only for the main command; see below.)
    - `_init` uses colored output when supported, and the existing plain
      `label: path` lines otherwise, so scripts and tests are unaffected.
 3. Tests (`tests/test_ui.py`): `supports_color` honors `NO_COLOR`/non-TTY;
@@ -67,3 +68,10 @@ Implemented as planned, with these deviations:
 - The banner is also printed before `--help` output (via a small
   `ArgumentParser.print_help` override) whenever color is supported, so users
   see it on the most common first command.
+
+- 2026-10-29 (pending approval of `sdd/specs/cli-ui.md`): the big banner is
+  shown only by the main command (the menu, and the root `--help`).
+  `ui.mark(label)` renders a one-line gradient mark, used by `spacekid init`
+  and `init --help` (`_Parser.mark_label`). The menu's `about` and `init` no
+  longer reprint a logo after the menu showed the big one (`_init` takes a
+  `mark` flag). `scan.sh` and `sync.sh` use the same mark.

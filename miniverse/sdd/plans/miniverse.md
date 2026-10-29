@@ -251,3 +251,9 @@ Implemented as planned, with these deviations:
 - **Repo-level tests** (`tests/test_repo_sdd.py`) also check that traceability
   entries are dated and point to existing files, and that the repo's own
   catalog is current.
+
+- 2026-10-29: the catalog was slimmed down (see `sdd/specs/miniverse.md`).
+  Steps 2b's ancestor chain, levels, and per-node contexts/specs were removed:
+  `catalog.md` now lists only nested miniverse paths as an indented tree, and
+  agents read contexts and specs in the nested miniverse itself. `sync.sh`
+  (see `sdd/plans/repo-sync.md`) consumes the catalog.

@@ -14,15 +14,17 @@ steps, in order, with no skipping:
 0. **Context (mandatory first step).** Before executing anything:
    1. Run `./scan.sh` from this folder to refresh `catalog.md`. Run it again
       before starting any spec and before starting any plan.
-   2. Read `catalog.md`. Use it — never search the file tree — to reach the
-      parent miniverses and the nested miniverses below this one, at any depth.
-   3. Reuse the nested `contexts/` the catalog lists instead of rediscovering
-      what is already documented.
-   4. Read the nested `sdd/specs/` the catalog lists, looking for limitations
-      and decisions already taken that may conflict with a spec of this
-      miniverse. Read the specs of the miniverses above this one that this
-      work must respect.
-   5. Consult the existing files in `contexts/` and create the missing contexts
+   2. Read `catalog.md`. It lists only the nested miniverses below this one,
+      at any depth, each by its path. Use it — never search the file tree — to
+      reach them.
+   3. Go to each nested miniverse the work touches and reuse its `contexts/`
+      instead of rediscovering what is already documented.
+   4. Read its `sdd/specs/`, looking for limitations and decisions already
+      taken that may conflict with a spec of this miniverse.
+   5. Run `./sync.sh` before reading the current state of the projects, so
+      every repository is on its latest commit. Use `./sync.sh --main` to also
+      move every repository to `main`.
+   6. Consult the existing files in `contexts/` and create the missing contexts
       the task depends on. Do not proceed until they exist.
 1. **Spec.** Write or update a spec in `sdd/specs/`, following
    `sdd/specs/AGENTS.md`.
@@ -51,9 +53,13 @@ several levels, the higher the level, the higher the precedence.
   file, not because of its name. Never delete it.
 - `scan.sh` — self-contained script (POSIX `sh`, no SpaceKid needed). It scans
   the directories this miniverse covers and rewrites `catalog.md`.
-- `catalog.md` — generated map of the hierarchy: this miniverse's level, its
-  ancestors, and the full tree of nested miniverses, with their contexts and
-  specs. Never edit it by hand.
+- `catalog.md` — generated list of the nested miniverses below this one, each
+  by its path. Never edit it by hand.
+- `sync.sh` — self-contained script (POSIX `sh`, no SpaceKid needed). It uses
+  the catalog to find every level of repositories, from this one down to the
+  lowest, logs the branch of each, and runs `git pull --ff-only`. With
+  `--main`, it first moves each repository to `main`. Repositories with
+  uncommitted changes are never moved.
 - `contexts/` — every piece of knowledge produced while working: findings,
   decisions, how things relate, domain explanations.
 - `contexts/AGENTS.md` — how to write a context.
@@ -81,6 +87,7 @@ If yes, it is a context. Otherwise, it is an artifact.
 - Never start execution without consulting or creating the context it depends on.
 - Never start a spec or a plan without running `./scan.sh` first.
 - Never search the file tree for nested miniverses; use `catalog.md`.
+- Never read the current state of the projects without running `./sync.sh` first.
 - Never create or edit anything in a folder without reading that folder's `AGENTS.md`.
 - Never save knowledge outside `contexts/`, or a non-knowledge file outside `artifacts/`.
 - Never implement a non-trivial feature without a spec and a plan already in place.

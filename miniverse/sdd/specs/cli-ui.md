@@ -1,8 +1,8 @@
 # CLI Visual Experience
 
-Status: Implemented
+Status: Draft
 Created: 2026-10-25
-Updated: 2026-10-26
+Updated: 2026-10-29
 
 ## Context
 
@@ -19,6 +19,10 @@ people discovering it for the first time.
   colored menu where the user picks what to do (create a miniverse, see
   information about the tool, or quit; formerly the menu also offered the
   project and multi-repo options, now superseded).
+- The large presentation of the project name belongs to the main command
+  (the interactive menu and the tool's own help). Every other command shows a
+  compact one-line mark instead, and never repeats the large one after the
+  menu already showed it.
 - The results of the initialization are shown with colors and symbols that
   make it easy to tell at a glance what was created, extended, or skipped.
 - The tool must keep working cleanly where color is unwanted or unsupported:
@@ -30,6 +34,8 @@ people discovering it for the first time.
 
 - [x] In an interactive terminal, the project name is displayed in a
       colorful, stylized form.
+- [ ] The large project name appears only in the main command; other commands
+      (initialization, their help) show the compact mark.
 - [x] Running the tool with no arguments in an interactive terminal shows a
       colored menu with the options above, and each option works.
 - [x] Invalid menu input is reported and the user can try again.
