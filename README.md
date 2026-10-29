@@ -57,7 +57,8 @@ Around the loop:
 - **Miniverses nest, to any depth.** A miniverse can sit inside a directory
   covered by a higher-level one, which can sit inside another, and so on.
   `scan.sh` finds them by their `.miniverse` marker (not by folder name) and
-  writes `catalog.md`: just the path of every nested miniverse, as a tree.
+  writes `catalog.md`: the projects the miniverse covers (or a statement that it
+  belongs to a single project) and the path of every nested miniverse, as a tree.
   Agents use the catalog, never a file-tree search, to go to a nested
   miniverse, **reuse the contexts** already documented there and read its specs
   for limitations and decisions already taken.
@@ -197,7 +198,7 @@ workspace/
     ├── .miniverse         # marker: what makes this folder a miniverse
     ├── scan.sh            # standalone script that writes catalog.md
     ├── sync.sh            # standalone script: log the branch and git pull every repo
-    ├── catalog.md         # generated list of nested miniverses (paths only)
+    ├── catalog.md         # generated: projects covered + nested miniverses (paths)
     ├── contexts/          # knowledge produced while working
     │   └── AGENTS.md      # how to write a context
     ├── artifacts/         # every other generated file

@@ -14,9 +14,10 @@ steps, in order, with no skipping:
 0. **Context (mandatory first step).** Before executing anything:
    1. Run `./scan.sh` from this folder to refresh `catalog.md`. Run it again
       before starting any spec and before starting any plan.
-   2. Read `catalog.md`. It lists only the nested miniverses below this one,
-      at any depth, each by its path. Use it — never search the file tree — to
-      reach them.
+   2. Read `catalog.md`. It says whether this miniverse belongs to a single
+      project or covers several (each listed by its path), and lists the nested
+      miniverses below this one, at any depth, each by its path. Use it, and
+      never search the file tree, to reach them.
    3. Go to each nested miniverse the work touches and reuse its `contexts/`
       instead of rediscovering what is already documented.
    4. Read its `sdd/specs/`, looking for limitations and decisions already
@@ -53,8 +54,9 @@ several levels, the higher the level, the higher the precedence.
   file, not because of its name. Never delete it.
 - `scan.sh` — self-contained script (POSIX `sh`, no SpaceKid needed). It scans
   the directories this miniverse covers and rewrites `catalog.md`.
-- `catalog.md` — generated list of the nested miniverses below this one, each
-  by its path. Never edit it by hand.
+- `catalog.md` — generated: the projects this miniverse covers (or the
+  statement that it belongs to a single project) and the nested miniverses below
+  this one, each by its path. Never edit it by hand.
 - `sync.sh` — self-contained script (POSIX `sh`, no SpaceKid needed). It uses
   the catalog to find every level of repositories, from this one down to the
   lowest, logs the branch of each, and runs `git pull --ff-only`. With

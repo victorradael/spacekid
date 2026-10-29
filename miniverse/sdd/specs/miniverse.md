@@ -78,7 +78,14 @@ SpaceKid creates a miniverse, and all work flows from it.
   directories it covers for other miniverses and records what it finds in a
   catalog stored inside the miniverse. The script must work on its own,
   without requiring SpaceKid to be available.
-- The catalog must be lean: it lists only the miniverses nested below this one,
+- The catalog must state which project or projects the miniverse covers:
+  - when the directory it covers holds several projects side by side, the
+    catalog lists each one, by location;
+  - otherwise it declares that the miniverse belongs to a single project and
+    names it.
+  Projects of nested miniverses are not listed: each nested miniverse declares
+  its own.
+- Beyond that project statement, the catalog must be lean: it lists only the miniverses nested below this one,
   at every depth, shown as a tree that makes each one's depth clear, and gives
   only the location of each. It must not list ancestors, levels, contexts, or
   specs: the agent goes to the nested miniverse and reads what it needs there.
@@ -158,6 +165,9 @@ SpaceKid creates a miniverse, and all work flows from it.
       last-updated date in every context.
 - [x] Conflicts across several levels are resolved in favor of the higher
       level, as stated in the miniverse's guidance.
+- [x] In a directory holding several projects, the catalog lists each project
+      by location; in a directory holding one project, it declares the
+      miniverse a single-project miniverse and names it.
 - [x] Running the script twice with no changes yields an identical catalog.
 - [x] The flow requires running the script before starting any spec or plan,
       and using the catalog instead of searching the file tree.

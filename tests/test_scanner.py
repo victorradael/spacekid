@@ -33,7 +33,8 @@ def _spec(mv: Path, name: str, status: str) -> None:
 
 
 def _tree(catalog: str) -> list[str]:
-    return [ln for ln in catalog.splitlines() if ln.lstrip().startswith("- `../")]
+    nested = catalog.split("## Nested miniverses", 1)[1]
+    return [ln for ln in nested.splitlines() if ln.lstrip().startswith("- `../")]
 
 
 def _lines(catalog: str) -> list[str]:
@@ -47,6 +48,53 @@ def test_fresh_miniverse_catalog_is_already_current(tmp_path: Path) -> None:
 
     assert _scan(mv) == before
     assert "## Nested miniverses\n\nnone" in before
+
+
+def test_single_repository_is_declared_a_single_project(tmp_path: Path) -> None:
+    (tmp_path / ".git").mkdir()
+    top = _mv(tmp_path, "solo")
+
+    catalog = _scan(top)
+
+    assert "## Projects\n\nSingle project: this miniverse belongs only to `solo` (`..`)." in catalog
+
+
+def test_one_repository_below_is_the_single_project(tmp_path: Path) -> None:
+    (tmp_path / "api").mkdir()
+    (tmp_path / "api" / ".git").mkdir()
+    (tmp_path / "docs").mkdir()
+    top = _mv(tmp_path, "top")
+
+    assert "belongs only to `../api`." in _scan(top)
+
+
+def test_several_repositories_are_cataloged_as_projects(tmp_path: Path) -> None:
+    for name in ("web", "api"):
+        (tmp_path / name).mkdir()
+        (tmp_path / name / ".git").write_text("gitdir: elsewhere\n", encoding="utf-8")
+    (tmp_path / "notes").mkdir()
+    top = _mv(tmp_path, "top")
+
+    catalog = _scan(top)
+
+    assert "side by side" in catalog
+    assert "- `../api`\n- `../web`\n" in catalog
+    assert "notes" not in catalog
+    assert "Single project" not in catalog
+    assert _tree(catalog) == []
+
+
+def test_projects_are_not_mistaken_for_nested_miniverses_by_sync(tmp_path: Path) -> None:
+    (tmp_path / "web").mkdir()
+    (tmp_path / "web" / ".git").mkdir()
+    (tmp_path / "api").mkdir()
+    (tmp_path / "api" / ".git").mkdir()
+    top = _mv(tmp_path, "top")
+
+    catalog = _scan(top)
+
+    assert catalog.index("## Projects") < catalog.index("## Nested miniverses")
+    assert "## Nested miniverses\n\nnone" in catalog
 
 
 def test_nested_miniverse_found_by_marker_even_if_folder_is_renamed(tmp_path: Path) -> None:

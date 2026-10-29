@@ -24,8 +24,9 @@ Updated: 2026-10-29
 ## The scanner
 
 `scan.sh` is POSIX `sh` and runs without SpaceKid. It finds miniverses by the
-`.miniverse` marker, lists only the nested miniverses (paths, as an indented tree), and
-rewrites `catalog.md` only when content changed. Its output has no timestamps,
+`.miniverse` marker, records the projects at its level (or declares a single project: direct
+subdirectories holding `.git`), lists the nested miniverses (paths, as an
+indented tree), and rewrites `catalog.md` only when content changed. Its output has no timestamps,
 so it is deterministic. Tests in `tests/test_scanner.py` run it in temp trees.
 
 ## Dogfooding

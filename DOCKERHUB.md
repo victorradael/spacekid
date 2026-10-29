@@ -114,7 +114,7 @@ miniverse/
 ├── .miniverse       # marker
 ├── scan.sh          # standalone script that writes catalog.md
 ├── sync.sh          # standalone script: git pull every repo (--main for main)
-├── catalog.md       # generated list of nested miniverses (paths)
+├── catalog.md       # generated: projects covered + nested miniverses (paths)
 ├── contexts/        # knowledge (each folder has its own AGENTS.md)
 ├── artifacts/       # every other generated file
 └── sdd/

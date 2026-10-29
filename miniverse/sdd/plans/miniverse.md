@@ -257,3 +257,12 @@ Implemented as planned, with these deviations:
   `catalog.md` now lists only nested miniverse paths as an indented tree, and
   agents read contexts and specs in the nested miniverse itself. `sync.sh`
   (see `sdd/plans/repo-sync.md`) consumes the catalog.
+- 2026-10-29: the catalog gained a `## Projects` section (see
+  `sdd/specs/miniverse.md`). `scan.sh` treats the direct subdirectories of the
+  covered directory that hold a `.git` (directory or file, same rule as
+  `sync.sh`) as projects: two or more are listed by path; otherwise the catalog
+  says the miniverse belongs to a single project (the one repository below, or
+  the covered directory, named by the `.miniverse` marker). The initial template
+  catalog shows the single-project state until `scan.sh` first runs. `sync.sh`
+  now reads paths only from the `## Nested miniverses` section so project paths
+  are not taken for nested miniverses.

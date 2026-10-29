@@ -101,7 +101,7 @@ banner "repository sync"
 [ -x "$self/scan.sh" ] && "$self/scan.sh" >/dev/null 2>&1 || true
 {
   printf '%s\n' "$root"
-  sed -n 's/^ *- `\(\.\.\/[^`]*\)`.*/\1/p' "$self/catalog.md" 2>/dev/null |
+  sed -n '/^## Nested miniverses/,$ s/^ *- `\(\.\.\/[^`]*\)`.*/\1/p' "$self/catalog.md" 2>/dev/null |
     while IFS= read -r rel; do
       c=$root/${rel#../}
       printf '%s\n' "${c%/*}"
