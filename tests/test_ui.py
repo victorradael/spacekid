@@ -108,11 +108,11 @@ def test_interactive_menu_about_and_quit(
     monkeypatch.setattr(ui, "is_interactive", lambda: True)
     monkeypatch.setattr(ui, "supports_color", lambda: False)
 
-    monkeypatch.setattr("builtins.input", lambda _="": "2")
+    monkeypatch.setattr("builtins.input", lambda _="": "4")
     assert cli.main([]) == 0
     assert "SpaceKid creates a miniverse" in capsys.readouterr().out
 
-    monkeypatch.setattr("builtins.input", lambda _="": "3")
+    monkeypatch.setattr("builtins.input", lambda _="": "5")
     assert cli.main([]) == 0
 
 

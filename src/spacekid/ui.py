@@ -27,8 +27,10 @@ _STATUS_STYLE = {
 
 _MENU = (
     ("1", "Create a miniverse here", "init"),
-    ("2", "About SpaceKid", "about"),
-    ("3", "Quit", "quit"),
+    ("2", "Refresh the catalog (scan)", "scan"),
+    ("3", "Update the repositories (sync)", "sync"),
+    ("4", "About SpaceKid", "about"),
+    ("5", "Quit", "quit"),
 )
 
 

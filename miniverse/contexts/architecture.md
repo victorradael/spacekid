@@ -6,7 +6,7 @@ Updated: 2026-10-29
 
 ## Shape
 
-- A small Python CLI (`src/spacekid/`): `cli.py` (argparse, one `init`
+- A small Python CLI (`src/spacekid/`): `cli.py` (argparse, `init`, `scan` and `sync`
   command, interactive menu), `ui.py` (colors, banner, menu), `scaffold.py`
   (writes the miniverse).
 - Everything written to a user's directory comes from `src/spacekid/templates/`:
@@ -42,3 +42,12 @@ directory and its direct subdirectories that is a git repository logs the
 branch and runs `git pull --ff-only`. `--main` first checks out `main`, skipping
 repositories with uncommitted changes. Exit `1` when any repository needs
 attention. Tests: `tests/test_sync.py` (real git, bare remotes).
+
+## Scan and sync commands
+
+`spacekid scan` and `spacekid sync [--main]` (both take `--path`) are thin
+launchers in `cli.py`: they find the miniverse (`.miniverse` in the path, or in
+`path/miniverse`) and run its own `scan.sh` / `sync.sh` with inherited stdio,
+returning the script's exit code. A missing miniverse or script prints a hint
+to run `spacekid init` and returns `1`. The image installs `git` for `sync`.
+Tests: `tests/test_cli_scan_sync.py`.

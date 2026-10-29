@@ -60,6 +60,17 @@ created: miniverse/contexts/.gitkeep
 created: miniverse/artifacts/.gitkeep
 ```
 
+Afterwards, from the same directory (or with `--path <dir>`):
+
+```bash
+spacekid scan          # refresh miniverse/catalog.md (runs miniverse/scan.sh)
+spacekid sync          # git pull --ff-only on every repository (runs miniverse/sync.sh)
+spacekid sync --main   # move every repository to main first
+```
+
+They print exactly what the scripts print and return their exit status. If the
+directory has no miniverse (or its scripts are missing), run `spacekid init`.
+
 From now on, `spacekid` is all you type.
 
 ### What the shortcut does
