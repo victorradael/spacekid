@@ -113,7 +113,8 @@ miniverse/
 ├── AGENTS.md        # the flow, folder map, rules
 ├── .miniverse       # marker
 ├── scan.sh          # standalone script that writes catalog.md
-├── catalog.md       # generated map of nested miniverses
+├── sync.sh          # standalone script: git pull every repo (--main for main)
+├── catalog.md       # generated list of nested miniverses (paths)
 ├── contexts/        # knowledge (each folder has its own AGENTS.md)
 ├── artifacts/       # every other generated file
 └── sdd/
@@ -121,7 +122,7 @@ miniverse/
     └── plans/
 ```
 
-Miniverses nest to any depth; `scan.sh` maps the ones above and below.
+Miniverses nest to any depth; `scan.sh` lists the ones below; `sync.sh` pulls every repository.
 
 ## Existing files
 

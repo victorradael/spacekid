@@ -132,3 +132,29 @@ def test_help_has_no_banner_without_color(capsys: pytest.CaptureFixture[str]) ->
     out = capsys.readouterr().out
     assert "\033[" not in out
     assert "|_" not in out
+
+
+def test_big_logo_only_on_the_main_command(
+    tty: None, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    with pytest.raises(SystemExit):
+        cli.main(["--help"])
+    main_help = capsys.readouterr().out
+
+    with pytest.raises(SystemExit):
+        cli.main(["init", "--help"])
+    init_help = capsys.readouterr().out
+
+    cli.main(["init", "--path", str(tmp_path)])
+    init_run = capsys.readouterr().out
+
+    monkeypatch.setattr(ui, "is_interactive", lambda: True)
+    monkeypatch.setattr("builtins.input", lambda _="": "2")
+    cli.main([])
+    menu_about = capsys.readouterr().out
+
+    assert "|_" in main_help
+    assert "|_" in menu_about and menu_about.count("a minimalist spec kit") == 1
+    for compact in (init_help, init_run):
+        assert "|_" not in compact
+        assert "✦" in compact

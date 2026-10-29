@@ -69,6 +69,14 @@ def banner(version: str) -> str:
     return "\n".join(lines)
 
 
+def mark(label: str) -> str:
+    """One-line SpaceKid mark for commands other than the main one."""
+    letters = "SPACEKID"
+    colors = (51, 51, 45, 45, 39, 99, 99, 135)
+    name = "".join(paint(ch, color, bold=True) for ch, color in zip(letters, colors))
+    return f"{paint('✦', 51, bold=True)} {name}  {paint(f'·  {label}', 245, dim=True)}"
+
+
 def status_line(status: str, rel_path: object) -> str:
     icon, color, text = _STATUS_STYLE[status]
     return f"{paint(icon, color, bold=True)} {paint(text, color)} {rel_path}"

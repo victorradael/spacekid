@@ -41,6 +41,7 @@ def test_fresh_directory_creates_full_miniverse(tmp_path: Path) -> None:
     assert (mv / "AGENTS.md").is_file()
     assert (mv / ".miniverse").is_file()
     assert (mv / "scan.sh").is_file()
+    assert (mv / "sync.sh").is_file()
     assert (mv / "catalog.md").is_file()
     for guide in _GUIDES:
         assert (mv / guide).is_file()
@@ -139,6 +140,7 @@ def test_scanner_is_executable(tmp_path: Path) -> None:
     scaffold(tmp_path)
 
     assert os.access(tmp_path / "miniverse" / "scan.sh", os.X_OK)
+    assert os.access(tmp_path / "miniverse" / "sync.sh", os.X_OK)
 
 
 def test_second_run_changes_nothing(tmp_path: Path) -> None:
@@ -183,7 +185,8 @@ def test_miniverse_guide_puts_the_flow_first_and_states_its_rules(tmp_path: Path
     assert "./scan.sh" in text and "catalog.md" in text
     assert "before starting any spec and before starting any plan" in text
     assert "never search the file tree" in text
-    assert "Reuse the nested `contexts/`" in text
+    assert "reuse its `contexts/`" in text
+    assert "./sync.sh" in text and "never read the current state of the projects" in text.lower()
     assert "limitations" in text and "decisions" in text
     assert "higher-level spec prevails" in text
     assert "the higher the level, the higher the precedence" in text

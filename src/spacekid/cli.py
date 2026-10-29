@@ -19,8 +19,8 @@ _STATUS_LABEL = {
 def _init(args: argparse.Namespace) -> int:
     project_root = Path(args.path).resolve()
     colored = ui.supports_color()
-    if colored:
-        print(ui.banner(version("spacekid")))
+    if colored and getattr(args, "mark", True):
+        print(ui.mark("init"))
         print()
     results = scaffold(project_root, app_name=args.name)
     for result in results:
@@ -33,8 +33,6 @@ def _init(args: argparse.Namespace) -> int:
 
 
 def _about() -> None:
-    print(ui.banner(version("spacekid")))
-    print()
     print("SpaceKid creates a miniverse: a self-contained world of contexts, artifacts,")
     print("and a spec-driven workflow. The flow: context -> spec -> plan ->")
     print("implementation -> close the loop. Run `spacekid init --help` for options.")
@@ -49,13 +47,17 @@ def _menu() -> int:
     if action == "about":
         _about()
         return 0
-    return _init(argparse.Namespace(path=".", name=None))
+    return _init(argparse.Namespace(path=".", name=None, mark=False))
 
 
 class _Parser(argparse.ArgumentParser):
+    """Big logo on the main command's help; a one-line mark on subcommands."""
+
+    mark_label: str | None = None
+
     def print_help(self, file=None) -> None:
         if ui.supports_color():
-            print(ui.banner(version("spacekid")), file=file)
+            print(ui.mark(self.mark_label) if self.mark_label else ui.banner(version("spacekid")), file=file)
             print(file=file)
         super().print_help(file)
 
@@ -74,6 +76,7 @@ def build_parser() -> argparse.ArgumentParser:
     init_parser.add_argument(
         "--name", default=None, help="name for the miniverse guides (default: auto-detected)"
     )
+    init_parser.mark_label = "init"
     init_parser.set_defaults(func=_init)
 
     return parser

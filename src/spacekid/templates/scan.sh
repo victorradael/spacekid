@@ -1,7 +1,8 @@
 #!/bin/sh
-# Scans the directories covered by this miniverse for other miniverses and
-# writes catalog.md next to this script. Self-contained: needs only POSIX sh
-# plus find, sort, sed, tr, cmp and mv. Run it from anywhere; safe to repeat.
+# Scans the directories covered by this miniverse for nested miniverses and
+# writes catalog.md next to this script: only the path of each one, so an agent
+# can go there and read what it needs. Self-contained: needs only POSIX sh plus
+# find, sort, sed, tr, cmp and mv. Run it from anywhere; safe to repeat.
 set -eu
 LC_ALL=C
 export LC_ALL
@@ -13,82 +14,43 @@ work="$self/.scan.$$"
 trap 'rm -f "$work".*' EXIT
 trap 'exit 1' INT TERM HUP
 
+# Presentation, in the style of `spacekid init`: colors and symbols on a
+# terminal; plain text when piped, redirected, with NO_COLOR, or TERM=dumb.
+if [ -t 1 ] && [ -z "${NO_COLOR+x}" ] && [ "${TERM:-}" != dumb ]; then
+  color=1
+else
+  color=0
+fi
+
+# paint <sgr codes> <text>
+paint() {
+  if [ "$color" -eq 1 ]; then
+    printf '\033[%sm%s\033[0m' "$1" "$2"
+  else
+    printf '%s' "$2"
+  fi
+}
+
+# Compact one-line mark: the big logo is only for the first contact (`spacekid init`).
+banner() {
+  [ "$color" -eq 1 ] || return 0
+  printf '\033[1;38;5;51m✦ \033[0m'
+  i=0
+  for ch in S P A C E K I D; do
+    case $i in 0|1) c=51 ;; 2|3) c=45 ;; 4) c=39 ;; 5|6) c=99 ;; *) c=135 ;; esac
+    printf '\033[1;38;5;%sm%s\033[0m' "$c" "$ch"
+    i=$((i + 1))
+  done
+  printf '  \033[2;38;5;245m·  %s\033[0m\n\n' "$1"
+}
+
 # Marker name of a miniverse folder (first line of .miniverse).
 name_of() {
   n=$(sed -n '1p' "$1/.miniverse")
   printf '%s' "${n:-${1##*/}}"
 }
 
-# Value of a "Key: value" header line, or ? when missing.
-val() {
-  v=$(sed -n "s/^$2:[[:space:]]*\(.*[^[:space:]]\)[[:space:]]*\$/\1/p" "$1" | sed -n '1p')
-  printf '%s' "${v:-?}"
-}
-
-title() {
-  t=$(sed -n '/^# /{s/^#[[:space:]]*//p;q;}' "$1")
-  printf '%s' "${t:-?}"
-}
-
-# Lists the contexts of miniverse $1, located at relative path $2, indented by $3.
-contexts_of() {
-  for f in "$1"/contexts/*.md; do
-    b=${f##*/}
-    if [ -f "$f" ] && [ "$b" != AGENTS.md ]; then
-      printf '%s- `%s/contexts/%s` — %s — %s (created %s, updated %s)\n' \
-        "$3" "$2" "$b" "$(title "$f")" "$(val "$f" Summary)" "$(val "$f" Created)" "$(val "$f" Updated)"
-    fi
-  done
-}
-
-# Lists the specs of miniverse $1, located at relative path $2, indented by $3.
-specs_of() {
-  for f in "$1"/sdd/specs/*.md; do
-    b=${f##*/}
-    if [ -f "$f" ] && [ "$b" != AGENTS.md ]; then
-      printf '%s- `%s/sdd/specs/%s` — %s — %s (created %s, updated %s)\n' \
-        "$3" "$2" "$b" "$(title "$f")" "$(val "$f" Status)" "$(val "$f" Created)" "$(val "$f" Updated)"
-    fi
-  done
-}
-
-# Prints a labelled list indented by $3, or "none" when the body $2 is empty.
-section() {
-  if [ -n "$2" ]; then
-    printf '%s%s:\n%s\n' "$3" "$1" "$2"
-  else
-    printf '%s%s: none\n' "$3" "$1"
-  fi
-}
-
-# Contexts and specs of miniverse $1 at relative path $2, indented by $3.
-details() {
-  section Contexts "$(contexts_of "$1" "$2" "$3")" "$3"
-  section Specs "$(specs_of "$1" "$2" "$3")" "$3"
-}
-
-# Ancestors, nearest first: "<relative path><TAB><absolute dir>" per line.
-: > "$work.anc"
-if [ "$root" != / ]; then
-  dir=$(dirname "$root")
-  up=../..
-  while :; do
-    for m in "$dir"/*/.miniverse "$dir"/.[!.]*/.miniverse; do
-      if [ -f "$m" ]; then
-        d=${m%/.miniverse}
-        printf '%s\t%s\n' "$up/${d##*/}" "$d" >> "$work.anc"
-      fi
-    done
-    [ "$dir" = / ] && break
-    dir=$(dirname "$dir")
-    up=$up/..
-  done
-fi
-anc_count=0
-while IFS= read -r _; do anc_count=$((anc_count + 1)); done < "$work.anc"
-level=$anc_count
-
-# Descendants: "<sort key><TAB><miniverse dir><TAB><covered dir>" per line.
+# Nested miniverses: "<sort key><TAB><miniverse dir><TAB><covered dir>" per line.
 # The key turns "/" into a low byte so a parent sorts right before its children.
 find "$root" \( -name .git -o -name node_modules -o -name .venv -o -name venv \
     -o -name dist -o -name build -o -name target -o -name __pycache__ \) -prune \
@@ -100,82 +62,54 @@ find "$root" \( -name .git -o -name node_modules -o -name .venv -o -name venv \
     printf '%s\t%s\t%s\n' "$(printf '%s' "$c" | tr '/' '\001')" "$d" "$c"
   done | sort -t "$tab" -k1,1 > "$work.nodes"
 
-# Sets depth (1 = direct child of this miniverse) and parent_d for covered dir $1.
+# Sets depth (1 = direct child of this miniverse) and rel (path from this
+# miniverse folder) for the miniverse in $d, covered by $1.
 place() {
   depth=1
-  parent_c=$root
-  parent_d=$self
-  while IFS="$tab" read -r _ d2 c2; do
+  while IFS="$tab" read -r _ _ c2; do
     case $1 in
-      "$c2"/*)
-        depth=$((depth + 1))
-        if [ ${#c2} -gt ${#parent_c} ]; then
-          parent_c=$c2
-          parent_d=$d2
-        fi
-        ;;
+      "$c2"/*) depth=$((depth + 1)) ;;
     esac
   done < "$work.nodes"
   rel=../${d#"$root"/}
-  if [ "$parent_d" = "$self" ]; then
-    parent_rel=.
-  else
-    parent_rel=../${parent_d#"$root"/}
-  fi
 }
-
-desc_count=0
-while IFS= read -r _; do desc_count=$((desc_count + 1)); done < "$work.nodes"
 
 {
   printf '# Catalog\n\n'
   printf '> Generated by `./scan.sh` — never edit by hand. Run it from this folder before any spec or plan.\n'
   printf '> Every path is relative to this miniverse folder: stay here and follow it as written.\n'
-  printf '> Read this catalog instead of searching the file tree.\n\n'
+  printf '> Each entry is a nested miniverse (indentation shows depth): go to its path and read its\n'
+  printf '> AGENTS.md, contexts and specs there. Read this catalog instead of searching the file tree.\n\n'
 
-  printf '## Position\n\n'
-  printf -- '- Miniverse: `.` — %s\n' "$(name_of "$self")"
-  printf -- '- Level: %s (0 is the top-most miniverse)\n' "$level"
-  printf -- '- Ancestors: %s\n' "$anc_count"
-  printf -- '- Descendants: %s\n\n' "$desc_count"
-
-  printf '## Ancestors (nearest first)\n\n'
-  if [ "$anc_count" -eq 0 ]; then
-    printf 'none\n\n'
-  else
-    i=0
-    while IFS="$tab" read -r rel abs; do
-      i=$((i + 1))
-      printf '%s. `%s` — %s (level %s)\n' "$i" "$rel" "$(name_of "$abs")" "$((anc_count - i))"
-      details "$abs" "$rel" "   "
-    done < "$work.anc"
-    printf '\n'
-  fi
-
-  printf '## Descendants\n\n'
-  if [ "$desc_count" -eq 0 ]; then
+  printf '## Nested miniverses\n\n'
+  if [ ! -s "$work.nodes" ]; then
     printf 'none\n'
   else
-    printf 'Tree (indentation shows depth):\n\n'
     while IFS="$tab" read -r _ d c; do
       place "$c"
       indent=
       n=1
       while [ "$n" -lt "$depth" ]; do indent="$indent  "; n=$((n + 1)); done
-      printf '%s- `%s` — %s (level %s, parent `%s`)\n' \
-        "$indent" "$rel" "$(name_of "$d")" "$((level + depth))" "$parent_rel"
-    done < "$work.nodes"
-    while IFS="$tab" read -r _ d c; do
-      place "$c"
-      printf '\n### `%s` — %s (level %s)\n\n' "$rel" "$(name_of "$d")" "$((level + depth))"
-      details "$d" "$rel" ""
+      printf '%s- `%s` — %s\n' "$indent" "$rel" "$(name_of "$d")"
     done < "$work.nodes"
   fi
 } > "$work.out"
 
+count=$(grep -c . "$work.nodes" || true)
+banner "catalog"
 if [ -f "$self/catalog.md" ] && cmp -s "$work.out" "$self/catalog.md"; then
-  echo "catalog.md unchanged"
+  if [ "$color" -eq 1 ]; then
+    printf '%s %s  %s\n' "$(paint '1;38;5;244' •)" "$(paint '38;5;244' 'catalog.md unchanged')" \
+      "$(paint '2;38;5;245' "$count nested")"
+  else
+    echo "catalog.md unchanged"
+  fi
 else
   mv "$work.out" "$self/catalog.md"
-  echo "catalog.md updated"
+  if [ "$color" -eq 1 ]; then
+    printf '%s %s  %s\n' "$(paint '1;38;5;42' ✔)" "$(paint '38;5;42' 'catalog.md updated')" \
+      "$(paint '2;38;5;245' "$count nested")"
+  else
+    echo "catalog.md updated"
+  fi
 fi

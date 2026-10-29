@@ -57,11 +57,13 @@ Around the loop:
 - **Miniverses nest, to any depth.** A miniverse can sit inside a directory
   covered by a higher-level one, which can sit inside another, and so on.
   `scan.sh` finds them by their `.miniverse` marker (not by folder name) and
-  writes `catalog.md`: the miniverse's level, its ancestors (nearest first)
-  and the full tree of nested miniverses, each with its contexts and specs.
-  Agents use the catalog, never a file-tree search, to **reuse contexts**
-  already documented and to read nested specs for limitations and decisions
-  already taken.
+  writes `catalog.md`: just the path of every nested miniverse, as a tree.
+  Agents use the catalog, never a file-tree search, to go to a nested
+  miniverse, **reuse the contexts** already documented there and read its specs
+  for limitations and decisions already taken.
+- **Projects stay current.** `sync.sh` uses the catalog to find every level of
+  repositories, logs the branch of each and runs `git pull --ff-only`;
+  `./sync.sh --main` first moves each one to `main`.
 - **Conflicts are resolved before work proceeds.** If a lower-level spec
   conflicts with a higher-level one, the higher level prevails unless it is
   deliberately updated. The higher the level, the higher the precedence.
@@ -194,7 +196,8 @@ workspace/
     ├── AGENTS.md          # the flow, folder map, placement rule, rules
     ├── .miniverse         # marker: what makes this folder a miniverse
     ├── scan.sh            # standalone script that writes catalog.md
-    ├── catalog.md         # generated map of ancestors and nested miniverses
+    ├── sync.sh            # standalone script: log the branch and git pull every repo
+    ├── catalog.md         # generated list of nested miniverses (paths only)
     ├── contexts/          # knowledge produced while working
     │   └── AGENTS.md      # how to write a context
     ├── artifacts/         # every other generated file
@@ -212,6 +215,13 @@ workspace/
   `./scan.sh`. It never changes your repositories; it only reads them, looking
   for other miniverses. Repeated runs with nothing changed produce the same
   `catalog.md`.
+- `sync.sh` needs only a POSIX shell and `git`. Run `./sync.sh` to log the
+  branch of every repository at this level and at each nested miniverse's
+  level and update it with `git pull --ff-only`, or `./sync.sh --main` to move
+  each repository to `main` first. Repositories with uncommitted changes are
+  never moved, a diverged branch is never merged, and one failing repository
+  does not stop the others (the script exits `1` and says which ones need
+  attention). It never asks for input.
 - The `.gitkeep` files keep the empty folders in version control.
 - Migration from the retired `project` and `brain` modes is manual: move your
   old root `specs/` and `plans/` (or `brain/sdd/`) into `miniverse/sdd/`.

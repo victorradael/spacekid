@@ -68,6 +68,7 @@ def scaffold(root: Path, app_name: str | None = None) -> list[FileResult]:
         write_or_skip(miniverse / "AGENTS.md", render("miniverse_agents.md")),
         write_or_skip(miniverse / ".miniverse", f"{name}\n"),
         write_or_skip(miniverse / "scan.sh", _load_template("scan.sh"), executable=True),
+        write_or_skip(miniverse / "sync.sh", _load_template("sync.sh"), executable=True),
         write_or_skip(miniverse / "catalog.md", render("miniverse_catalog.md")),
         write_or_append(miniverse / "contexts" / "AGENTS.md", _load_template("contexts_agents.md")),
         write_or_append(
