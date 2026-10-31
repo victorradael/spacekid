@@ -2,7 +2,7 @@
 
 Summary: how the CLI, its templates, and the generated miniverse fit together.
 Created: 2026-10-26
-Updated: 2026-10-29
+Updated: 2026-10-31
 
 ## Shape
 
@@ -50,4 +50,11 @@ launchers in `cli.py`: they find the miniverse (`.miniverse` in the path, or in
 `path/miniverse`) and run its own `scan.sh` / `sync.sh` with inherited stdio,
 returning the script's exit code. A missing miniverse or script prints a hint
 to run `spacekid init` and returns `1`. The image installs `git` for `sync`.
+
+## Container image
+
+Two-stage Alpine build (`python3` + `git` only, unused stdlib pruned, no pip in
+the final stage): ~68MB on disk, ~18MB compressed, down from 196MB / 48MB on
+`python:slim`. When adding CLI imports, check they are not in the pruned list
+in the `Dockerfile`.
 Tests: `tests/test_cli_scan_sync.py`.
