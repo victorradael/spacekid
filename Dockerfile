@@ -1,4 +1,4 @@
-FROM alpine:3.22 AS build
+FROM alpine:3.24 AS build
 
 RUN apk add --no-cache python3 py3-pip py3-setuptools
 
@@ -9,7 +9,7 @@ ARG VERSION
 RUN if [ -n "$VERSION" ]; then sed -i "s/^version = .*/version = \"$VERSION\"/" pyproject.toml; fi \
     && pip install --no-cache-dir --break-system-packages --no-build-isolation --prefix=/out .
 
-FROM alpine:3.22
+FROM alpine:3.24
 
 # Only python3 and git; the unused parts of the standard library are removed.
 RUN apk add --no-cache python3 git \
