@@ -50,3 +50,16 @@ or images.
   needs **Read, Write, Delete** permission: updating the description requires
   more than push-only access.
 - Protect `main` and require the `test` check.
+
+## Security
+
+- The `Dockerfile` pins Alpine by digest and runs `apk upgrade` on every build.
+  Dependabot proposes base-image bumps as `fix:` commits, so merging one
+  publishes a patch release with the new security fixes.
+- Every pull request and release scans the image with Grype and fails on any
+  critical or high vulnerability that has a fix available. A weekly scheduled
+  run scans the published `latest` image; when it fails, merge the pending
+  Dependabot bump or push a `fix:` commit to rebuild and republish.
+- Release builds pull a fresh base, reuse only layers built in the same run,
+  and publish build provenance and an SBOM with the image.
+- Actions are pinned by commit SHA; checkouts do not persist credentials.

@@ -136,6 +136,24 @@ def test_scanner_and_marker_are_never_overwritten(tmp_path: Path) -> None:
     assert (mv / ".miniverse").read_text(encoding="utf-8") == "custom\n"
 
 
+def test_links_are_never_written_through(tmp_path: Path) -> None:
+    project = tmp_path / "project"
+    mv = project / "miniverse" / "contexts"
+    mv.mkdir(parents=True)
+    outside = tmp_path / "outside.txt"
+    outside.write_text("secret\n", encoding="utf-8")
+    (project / "AGENTS.md").symlink_to(tmp_path / "missing.txt")
+    (mv / "AGENTS.md").symlink_to(outside)
+
+    results = scaffold(project)
+
+    statuses = {r.path.relative_to(project).as_posix(): r.status for r in results}
+    assert statuses["AGENTS.md"] == "skipped"
+    assert statuses["miniverse/contexts/AGENTS.md"] == "skipped"
+    assert not (tmp_path / "missing.txt").exists()
+    assert outside.read_text(encoding="utf-8") == "secret\n"
+
+
 def test_scanner_is_executable(tmp_path: Path) -> None:
     scaffold(tmp_path)
 
