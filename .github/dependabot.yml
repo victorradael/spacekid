@@ -4,7 +4,15 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # Let a new action release age before adopting it (compromised releases are usually caught fast).
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: ci
   - package-ecosystem: docker
     directory: /
     schedule:
       interval: weekly
+    # `fix:` makes a base-image update publish a patch release with its security fixes.
+    commit-message:
+      prefix: fix

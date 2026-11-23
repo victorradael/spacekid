@@ -33,25 +33,37 @@ def detect_app_name(project_root: Path) -> str:
     return project_root.resolve().name
 
 
-def write_or_skip(path: Path, content: str, executable: bool = False) -> FileResult:
-    if path.exists():
-        return FileResult(path, "skipped")
+def _create(path: Path, content: str) -> bool:
+    """Create `path` exclusively; False if anything, even a dangling link, is there."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(content, encoding="utf-8")
+    try:
+        with path.open("x", encoding="utf-8") as f:
+            f.write(content)
+    except FileExistsError:
+        return False
+    return True
+
+
+def write_or_skip(path: Path, content: str, executable: bool = False) -> FileResult:
+    # Links are never written through: they may point outside the project.
+    if path.is_symlink() or path.exists() or not _create(path, content):
+        return FileResult(path, "skipped")
     if executable:
         path.chmod(0o755)
     return FileResult(path, "created")
 
 
 def write_or_append(path: Path, content: str) -> FileResult:
+    if path.is_symlink():
+        return FileResult(path, "skipped")
     if path.exists():
         if content.strip() in path.read_text(encoding="utf-8"):
             return FileResult(path, "skipped")
         with path.open("a", encoding="utf-8") as f:
             f.write("\n" + content)
         return FileResult(path, "appended")
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(content, encoding="utf-8")
+    if not _create(path, content):
+        return FileResult(path, "skipped")
     return FileResult(path, "created")
 
 

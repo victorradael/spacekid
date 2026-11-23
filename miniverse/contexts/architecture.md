@@ -2,7 +2,7 @@
 
 Summary: how the CLI, its templates, and the generated miniverse fit together.
 Created: 2026-10-26
-Updated: 2026-10-31
+Updated: 2026-11-23
 
 ## Shape
 
@@ -56,5 +56,6 @@ to run `spacekid init` and returns `1`. The image installs `git` for `sync`.
 Two-stage Alpine build (`python3` + `git` only, unused stdlib pruned, no pip in
 the final stage): ~68MB on disk, ~18MB compressed, down from 196MB / 48MB on
 `python:slim`. When adding CLI imports, check they are not in the pruned list
-in the `Dockerfile`.
+in the `Dockerfile`. Alpine is pinned by digest and upgraded at build time;
+see `container-security.md` for the security rules of the image and the CI.
 Tests: `tests/test_cli_scan_sync.py`.

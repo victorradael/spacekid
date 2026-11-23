@@ -97,12 +97,12 @@ default) or `~/.bashrc` for bash (`~/.bash_profile` on macOS):
 
 ```bash
 cat >> ~/.zshrc <<'EOF'
-alias spacekid='docker run -it --rm -e NO_COLOR -u "$(id -u):$(id -g)" -v "$PWD:/project" victorradael/spacekid'
+alias spacekid='docker run -it --rm --cap-drop=ALL --security-opt no-new-privileges -e NO_COLOR -u "$(id -u):$(id -g)" -v "$PWD:/project" victorradael/spacekid'
 EOF
 source ~/.zshrc
 ```
 
-For fish, run `alias --save spacekid 'docker run -it --rm -e NO_COLOR -u (id -u):(id -g) -v $PWD:/project victorradael/spacekid'` instead.
+For fish, run `alias --save spacekid 'docker run -it --rm --cap-drop=ALL --security-opt no-new-privileges -e NO_COLOR -u (id -u):(id -g) -v $PWD:/project victorradael/spacekid'` instead.
 
 **3. Use it, from the directory you want to work in** — a single repository,
 several repositories side by side, or an empty folder:
@@ -152,6 +152,7 @@ The shortcut is a short name for a longer Docker command:
 |---|---|
 | `docker run` | Start the SpaceKid container. |
 | `--rm` | Delete the container when it finishes. Nothing is left behind. |
+| `--cap-drop=ALL --security-opt no-new-privileges` | Give the container no special system privileges, and forbid it from gaining any. SpaceKid needs none. |
 | `-it` | Connect your terminal to the container, so colors and the interactive menu work. Without it, SpaceKid prints plain text. |
 | `-e NO_COLOR` | Pass your `NO_COLOR` setting through, so opting out of color still works. |
 | `-u "$(id -u):$(id -g)"` | Run as you, so created files belong to you instead of `root`. |
