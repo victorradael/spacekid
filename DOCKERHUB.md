@@ -51,11 +51,14 @@ created: AGENTS.md
 created: miniverse/AGENTS.md
 created: miniverse/.miniverse
 created: miniverse/scan.sh
+created: miniverse/sync.sh
 created: miniverse/catalog.md
+created: miniverse/ponytail.md
 created: miniverse/contexts/AGENTS.md
 created: miniverse/artifacts/AGENTS.md
 created: miniverse/sdd/specs/AGENTS.md
 created: miniverse/sdd/plans/AGENTS.md
+created: miniverse/sdd/teams/AGENTS.md
 created: miniverse/contexts/.gitkeep
 created: miniverse/artifacts/.gitkeep
 ```
@@ -127,11 +130,13 @@ miniverse/
 ├── scan.sh          # standalone script that writes catalog.md
 ├── sync.sh          # standalone script: git pull every repo (--main for main)
 ├── catalog.md       # generated: projects covered + nested miniverses (paths)
+├── ponytail.md      # how every agent works, always (adapted from ponytail)
 ├── contexts/        # knowledge (each folder has its own AGENTS.md)
 ├── artifacts/       # every other generated file
 └── sdd/
     ├── specs/
-    └── plans/
+    ├── plans/
+    └── teams/       # how to form a team of agents
 ```
 
 Miniverses nest to any depth; `scan.sh` lists the ones below; `sync.sh` pulls every repository.

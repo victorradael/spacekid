@@ -82,12 +82,14 @@ def scaffold(root: Path, app_name: str | None = None) -> list[FileResult]:
         write_or_skip(miniverse / "scan.sh", _load_template("scan.sh"), executable=True),
         write_or_skip(miniverse / "sync.sh", _load_template("sync.sh"), executable=True),
         write_or_skip(miniverse / "catalog.md", render("miniverse_catalog.md")),
+        write_or_skip(miniverse / "ponytail.md", _load_template("ponytail.md")),
         write_or_append(miniverse / "contexts" / "AGENTS.md", _load_template("contexts_agents.md")),
         write_or_append(
             miniverse / "artifacts" / "AGENTS.md", _load_template("artifacts_agents.md")
         ),
         write_or_append(miniverse / "sdd" / "specs" / "AGENTS.md", _load_template("specs_agents.md")),
         write_or_append(miniverse / "sdd" / "plans" / "AGENTS.md", _load_template("plans_agents.md")),
+        write_or_append(miniverse / "sdd" / "teams" / "AGENTS.md", _load_template("teams_agents.md")),
         write_or_skip(miniverse / "contexts" / ".gitkeep", ""),
         write_or_skip(miniverse / "artifacts" / ".gitkeep", ""),
     ]

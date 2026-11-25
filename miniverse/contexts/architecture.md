@@ -2,7 +2,7 @@
 
 Summary: how the CLI, its templates, and the generated miniverse fit together.
 Created: 2026-10-26
-Updated: 2026-11-23
+Updated: 2026-11-25
 
 ## Shape
 
@@ -17,9 +17,23 @@ Updated: 2026-11-23
 ## Write behavior
 
 - `write_or_skip` for files owned by the user once created (root and miniverse
-  guides, marker, scanner, catalog, `.gitkeep`).
-- `write_or_append` for the four folder guides: appended only when the file
-  lacks the standard text, so repeated runs change nothing.
+  guides, `ponytail.md`, marker, scanner, catalog, `.gitkeep`).
+- `write_or_append` for the five folder guides (`contexts`, `artifacts`,
+  `sdd/specs`, `sdd/plans`, `sdd/teams`): appended only when the file lacks the
+  standard text, so repeated runs change nothing. Changing a guide's template
+  text makes `init` append it again to existing miniverses, so edit them
+  sparingly.
+
+## Team guide
+
+`sdd/teams/AGENTS.md` is guidance only: SpaceKid creates no agents and installs
+no skills. It defines roles, model tiers, handoffs, and how each role applies
+`ponytail.md`; each team is saved as `sdd/teams/<team>/`, in the layout of Paperclip's team
+packages: `TEAM.md` plus one `agents/<member>/AGENTS.md` per member.
+
+`miniverse/ponytail.md` (`write_or_skip`) is the vendored, adapted copy of the
+ponytail rules every agent follows on every task (see `contexts/ponytail.md`);
+the main guide makes it always on and the root `AGENTS.md` points to it.
 
 ## The scanner
 

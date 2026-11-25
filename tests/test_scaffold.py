@@ -11,6 +11,7 @@ _GUIDES = (
     "artifacts/AGENTS.md",
     "sdd/specs/AGENTS.md",
     "sdd/plans/AGENTS.md",
+    "sdd/teams/AGENTS.md",
 )
 
 
@@ -43,6 +44,7 @@ def test_fresh_directory_creates_full_miniverse(tmp_path: Path) -> None:
     assert (mv / "scan.sh").is_file()
     assert (mv / "sync.sh").is_file()
     assert (mv / "catalog.md").is_file()
+    assert (mv / "ponytail.md").is_file()
     for guide in _GUIDES:
         assert (mv / guide).is_file()
     assert (mv / "contexts" / ".gitkeep").is_file()
@@ -210,7 +212,7 @@ def test_miniverse_guide_puts_the_flow_first_and_states_its_rules(tmp_path: Path
     assert "the higher the level, the higher the precedence" in text
     assert "Traceability" in text
     assert "read that folder's" in text
-    for guide in ("contexts/AGENTS.md", "artifacts/AGENTS.md", "sdd/specs/AGENTS.md", "sdd/plans/AGENTS.md"):
+    for guide in _GUIDES:
         assert guide in text
     assert "{{APP_NAME}}" not in text
 
@@ -241,3 +243,53 @@ def test_context_rules_require_summary_and_dates(tmp_path: Path) -> None:
 
     assert "Summary:" in text and "Created:" in text and "Updated:" in text
     assert "one line" in text
+
+
+def test_team_guide_orients_teams_without_creating_agents(tmp_path: Path) -> None:
+    scaffold(tmp_path)
+    text = (tmp_path / "miniverse" / "sdd" / "teams" / "AGENTS.md").read_text(encoding="utf-8")
+
+    assert "never creates agents" in text
+    assert "ships no agents or ready-made\nteams" in text
+    for role in ("Lead", "Implementer", "Reviewer", "Scout"):
+        assert role in text
+    for tier in ("Strongest reasoning", "Balanced", "Fast and cheap"):
+        assert tier in text
+    assert "exact model" in text
+    assert "Blocked members stop and escalate" in text
+    assert "Every member follows `ponytail.md`" in text
+    assert "nothing\nis installed" in text
+    assert "review in `ponytail.md`" in text
+    assert "sdd/teams/<team>/" in text and "TEAM.md" in text
+    assert "agents/<member>/AGENTS.md" in text
+    for field in ("manager:", "includes:", "reportsTo:", "model:", "ponytail:"):
+        assert field in text
+
+
+def test_ponytail_rules_are_vendored_and_always_on(tmp_path: Path) -> None:
+    scaffold(tmp_path)
+    mv = tmp_path / "miniverse"
+    rules = (mv / "ponytail.md").read_text(encoding="utf-8")
+
+    assert "on every task,\nalways" in rules
+    assert "do not install the upstream skill" in rules
+    for section in ("## Levels", "## The smallest complete change", "## Review a change",
+                    "## Audit a codebase", "## Shortcut debt"):
+        assert section in rules
+    assert "Copyright (c) 2026 DietrichGebert" in rules and "MIT License" in rules
+
+    guide = (mv / "AGENTS.md").read_text(encoding="utf-8")
+    assert guide.index("## Always On: Ponytail") < guide.index("## The Flow")
+    assert "Never work on any task without following `ponytail.md`." in guide
+    assert "miniverse/ponytail.md" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+
+
+def test_existing_ponytail_rules_are_never_overwritten(tmp_path: Path) -> None:
+    mv = tmp_path / "miniverse"
+    mv.mkdir()
+    (mv / "ponytail.md").write_text("tailored\n", encoding="utf-8")
+
+    results = scaffold(tmp_path)
+
+    assert next(r for r in results if r.path == mv / "ponytail.md").status == "skipped"
+    assert (mv / "ponytail.md").read_text(encoding="utf-8") == "tailored\n"

@@ -24,3 +24,4 @@ spec-driven workflow for everything here.
 The flow is the heart of it: context → spec → plan → implementation → close
 the loop. **Read `miniverse/AGENTS.md` before doing anything else**, and follow
 it exactly.
+Every agent here also follows `miniverse/ponytail.md` on every task, always.
