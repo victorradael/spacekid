@@ -121,6 +121,7 @@ created: miniverse/contexts/AGENTS.md
 created: miniverse/artifacts/AGENTS.md
 created: miniverse/sdd/specs/AGENTS.md
 created: miniverse/sdd/plans/AGENTS.md
+created: miniverse/sdd/teams/AGENTS.md
 created: miniverse/contexts/.gitkeep
 created: miniverse/artifacts/.gitkeep
 ```
@@ -217,12 +218,19 @@ workspace/
     │   └── AGENTS.md      # how to organize artifacts
     └── sdd/
         ├── specs/AGENTS.md    # how to write a spec
-        └── plans/AGENTS.md    # how to write an implementation plan
+        ├── plans/AGENTS.md    # how to write an implementation plan
+        └── teams/AGENTS.md    # how to form and run a team of agents
 ```
 
 - Every folder that holds a kind of document has its own `AGENTS.md` with the
   structure and patterns its files follow. Agents read it before creating or
   editing anything there.
+- `sdd/teams/AGENTS.md` guides work split across several AI agents: when a
+  team is worth it, one responsibility per role, which model tier each role
+  runs on, how work is handed over, and the
+  [ponytail](https://github.com/DietrichGebert/ponytail) skill every member
+  carries to spend fewer tokens. SpaceKid never creates or installs agents;
+  you do, in your agent tool.
 - `scan.sh` needs only a POSIX shell (`find`, `sort`, `sed`, `tr`, `cmp`, `mv`)
   and works without SpaceKid or Docker. Run it from the miniverse folder:
   `./scan.sh`. It never changes your repositories; it only reads them, looking
@@ -247,7 +255,7 @@ of three outcomes:
 | Message | When | What happened |
 |---|---|---|
 | `created: <file>` | the file did not exist | written from the template |
-| `appended to: <file>` | one of the four folder guides (`contexts`, `artifacts`, `sdd/specs`, `sdd/plans`) exists but does not contain the SpaceKid rules | the standard rules were added to the end; your content is kept |
+| `appended to: <file>` | one of the five folder guides (`contexts`, `artifacts`, `sdd/specs`, `sdd/plans`, `sdd/teams`) exists but does not contain the SpaceKid rules | the standard rules were added to the end; your content is kept |
 | `skipped (already exists): <file>` | the file exists and needs nothing: `AGENTS.md`, `miniverse/AGENTS.md`, `.miniverse`, `scan.sh`, `catalog.md`, the `.gitkeep` files, or a folder guide that already contains the SpaceKid rules | left untouched |
 
 Running `init` again is safe: a directory that already has a miniverse is left
@@ -264,6 +272,7 @@ skipped (already exists): miniverse/contexts/AGENTS.md
 skipped (already exists): miniverse/artifacts/AGENTS.md
 skipped (already exists): miniverse/sdd/specs/AGENTS.md
 skipped (already exists): miniverse/sdd/plans/AGENTS.md
+skipped (already exists): miniverse/sdd/teams/AGENTS.md
 skipped (already exists): miniverse/contexts/.gitkeep
 skipped (already exists): miniverse/artifacts/.gitkeep
 ```

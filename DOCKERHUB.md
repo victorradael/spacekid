@@ -56,6 +56,7 @@ created: miniverse/contexts/AGENTS.md
 created: miniverse/artifacts/AGENTS.md
 created: miniverse/sdd/specs/AGENTS.md
 created: miniverse/sdd/plans/AGENTS.md
+created: miniverse/sdd/teams/AGENTS.md
 created: miniverse/contexts/.gitkeep
 created: miniverse/artifacts/.gitkeep
 ```
@@ -131,7 +132,8 @@ miniverse/
 ├── artifacts/       # every other generated file
 └── sdd/
     ├── specs/
-    └── plans/
+    ├── plans/
+    └── teams/       # how to form a team of agents (ponytail-equipped)
 ```
 
 Miniverses nest to any depth; `scan.sh` lists the ones below; `sync.sh` pulls every repository.

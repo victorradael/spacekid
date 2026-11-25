@@ -31,7 +31,8 @@ steps, in order, with no skipping:
    `sdd/specs/AGENTS.md`.
 2. **Plan.** Write or update an implementation plan in `sdd/plans/`, following
    `sdd/plans/AGENTS.md`.
-3. **Implementation.** Build what the plan describes.
+3. **Implementation.** Build what the plan describes. When the plan needs
+   several agents, form the team first, following `sdd/teams/AGENTS.md`.
 4. **Close the loop.** As soon as the work finishes:
    - set the plan and spec statuses and record any deviation;
    - bring up to date every spec, plan, and context the work affected;
@@ -72,6 +73,9 @@ several levels, the higher the level, the higher the precedence.
 - `sdd/specs/AGENTS.md` — how to write a spec.
 - `sdd/plans/` — one implementation plan per spec, paired by matching name.
 - `sdd/plans/AGENTS.md` — how to write an implementation plan.
+- `sdd/teams/` — one document per agent team: members, models, handoffs.
+- `sdd/teams/AGENTS.md` — when and how to form a team of agents, and how its
+  members work. The miniverse never creates agents.
 
 Before creating or editing anything in a folder, read that folder's
 `AGENTS.md`.

@@ -88,6 +88,7 @@ def scaffold(root: Path, app_name: str | None = None) -> list[FileResult]:
         ),
         write_or_append(miniverse / "sdd" / "specs" / "AGENTS.md", _load_template("specs_agents.md")),
         write_or_append(miniverse / "sdd" / "plans" / "AGENTS.md", _load_template("plans_agents.md")),
+        write_or_append(miniverse / "sdd" / "teams" / "AGENTS.md", _load_template("teams_agents.md")),
         write_or_skip(miniverse / "contexts" / ".gitkeep", ""),
         write_or_skip(miniverse / "artifacts" / ".gitkeep", ""),
     ]

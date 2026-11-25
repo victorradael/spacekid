@@ -11,6 +11,7 @@ _GUIDES = (
     "artifacts/AGENTS.md",
     "sdd/specs/AGENTS.md",
     "sdd/plans/AGENTS.md",
+    "sdd/teams/AGENTS.md",
 )
 
 
@@ -210,7 +211,7 @@ def test_miniverse_guide_puts_the_flow_first_and_states_its_rules(tmp_path: Path
     assert "the higher the level, the higher the precedence" in text
     assert "Traceability" in text
     assert "read that folder's" in text
-    for guide in ("contexts/AGENTS.md", "artifacts/AGENTS.md", "sdd/specs/AGENTS.md", "sdd/plans/AGENTS.md"):
+    for guide in _GUIDES:
         assert guide in text
     assert "{{APP_NAME}}" not in text
 
@@ -241,3 +242,19 @@ def test_context_rules_require_summary_and_dates(tmp_path: Path) -> None:
 
     assert "Summary:" in text and "Created:" in text and "Updated:" in text
     assert "one line" in text
+
+
+def test_team_guide_orients_teams_without_creating_agents(tmp_path: Path) -> None:
+    scaffold(tmp_path)
+    text = (tmp_path / "miniverse" / "sdd" / "teams" / "AGENTS.md").read_text(encoding="utf-8")
+
+    assert "never creates agents" in text
+    for role in ("Lead", "Implementer", "Reviewer", "Scout"):
+        assert role in text
+    for tier in ("Strongest reasoning", "Balanced", "Fast and cheap"):
+        assert tier in text
+    assert "exact model" in text
+    assert "Blocked members stop and escalate" in text
+    assert "`DietrichGebert/ponytail`" in text and "`@dietrichgebert/ponytail`" in text
+    assert "/ponytail-review" in text
+    assert "## Members" in text and "ponytail <version>" in text
