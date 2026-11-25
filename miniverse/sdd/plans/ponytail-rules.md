@@ -53,3 +53,7 @@ always on; the entry guide and the team guide point to it.
 - Implemented as planned. Review and audit output formats were condensed to
   one paragraph each, keeping every rule but the worked example.
 - No `shortcut:` markers added.
+- 2026-11-25, user decision: this repository checks upstream for a newer
+  ponytail release at the start of every task (flow step 0.7 in its own
+  `miniverse/AGENTS.md`, procedure in `contexts/ponytail.md`). Manual and
+  done by agents, nothing installed. Repo-only: the template guide is unchanged.

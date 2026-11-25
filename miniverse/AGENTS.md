@@ -35,6 +35,11 @@ steps, in order, with no skipping:
       move every repository to `main`.
    6. Consult the existing files in `contexts/` and create the missing contexts
       the task depends on. Do not proceed until they exist.
+   7. Check upstream ponytail for a release newer than the one recorded in
+      `ponytail.md`, following `contexts/ponytail.md`. The check and any
+      refresh are manual and done by the agent; nothing is installed. A
+      newer release is carried in as its own change, never mixed into the
+      task at hand.
 1. **Spec.** Write or update a spec in `sdd/specs/`, following
    `sdd/specs/AGENTS.md`.
 2. **Plan.** Write or update an implementation plan in `sdd/plans/`, following
@@ -106,6 +111,7 @@ If yes, it is a context. Otherwise, it is an artifact.
 
 - Never work on any task without following `ponytail.md`.
 - Never consider a change done before it passes the review in `ponytail.md`.
+- Never start a task without checking upstream ponytail for a newer release; never install it.
 - Never start execution without consulting or creating the context it depends on.
 - Never start a spec or a plan without running `./scan.sh` first.
 - Never search the file tree for nested miniverses; use `catalog.md`.
