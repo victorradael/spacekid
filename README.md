@@ -116,7 +116,9 @@ created: AGENTS.md
 created: miniverse/AGENTS.md
 created: miniverse/.miniverse
 created: miniverse/scan.sh
+created: miniverse/sync.sh
 created: miniverse/catalog.md
+created: miniverse/ponytail.md
 created: miniverse/contexts/AGENTS.md
 created: miniverse/artifacts/AGENTS.md
 created: miniverse/sdd/specs/AGENTS.md
@@ -212,6 +214,7 @@ workspace/
     ├── scan.sh            # standalone script that writes catalog.md
     ├── sync.sh            # standalone script: log the branch and git pull every repo
     ├── catalog.md         # generated: projects covered + nested miniverses (paths)
+    ├── ponytail.md        # how every agent works, always (adapted from ponytail)
     ├── contexts/          # knowledge produced while working
     │   └── AGENTS.md      # how to write a context
     ├── artifacts/         # every other generated file
@@ -227,10 +230,13 @@ workspace/
   editing anything there.
 - `sdd/teams/AGENTS.md` guides work split across several AI agents: when a
   team is worth it, one responsibility per role, which model tier each role
-  runs on, how work is handed over, and the
-  [ponytail](https://github.com/DietrichGebert/ponytail) skill every member
-  carries to spend fewer tokens. SpaceKid never creates or installs agents;
-  you do, in your agent tool.
+  runs on, how work is handed over, and how each role applies `ponytail.md`.
+  SpaceKid never creates or installs agents; you do, in your agent tool.
+- `ponytail.md` is the miniverse's own copy of the
+  [ponytail](https://github.com/DietrichGebert/ponytail) rules (MIT), adapted
+  to the flow. Every agent follows it on every task, alone or in a team: the
+  smallest complete change, a short reply naming what was skipped, a review
+  before any change is done, and a ledger of shortcuts. Nothing is installed.
 - `scan.sh` needs only a POSIX shell (`find`, `sort`, `sed`, `tr`, `cmp`, `mv`)
   and works without SpaceKid or Docker. Run it from the miniverse folder:
   `./scan.sh`. It never changes your repositories; it only reads them, looking
@@ -256,7 +262,7 @@ of three outcomes:
 |---|---|---|
 | `created: <file>` | the file did not exist | written from the template |
 | `appended to: <file>` | one of the five folder guides (`contexts`, `artifacts`, `sdd/specs`, `sdd/plans`, `sdd/teams`) exists but does not contain the SpaceKid rules | the standard rules were added to the end; your content is kept |
-| `skipped (already exists): <file>` | the file exists and needs nothing: `AGENTS.md`, `miniverse/AGENTS.md`, `.miniverse`, `scan.sh`, `catalog.md`, the `.gitkeep` files, or a folder guide that already contains the SpaceKid rules | left untouched |
+| `skipped (already exists): <file>` | the file exists and needs nothing: `AGENTS.md`, `miniverse/AGENTS.md`, `.miniverse`, `scan.sh`, `catalog.md`, `ponytail.md`, the `.gitkeep` files, or a folder guide that already contains the SpaceKid rules | left untouched |
 
 Running `init` again is safe: a directory that already has a miniverse is left
 exactly as it is, even if you edited the files around the rules.
@@ -267,7 +273,9 @@ skipped (already exists): AGENTS.md
 skipped (already exists): miniverse/AGENTS.md
 skipped (already exists): miniverse/.miniverse
 skipped (already exists): miniverse/scan.sh
+skipped (already exists): miniverse/sync.sh
 skipped (already exists): miniverse/catalog.md
+skipped (already exists): miniverse/ponytail.md
 skipped (already exists): miniverse/contexts/AGENTS.md
 skipped (already exists): miniverse/artifacts/AGENTS.md
 skipped (already exists): miniverse/sdd/specs/AGENTS.md

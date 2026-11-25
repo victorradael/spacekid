@@ -40,8 +40,9 @@ No code beyond one scaffold entry; the guidance is text.
   free-form knowledge.
 - **Tiers, not model names, in the guide.** Model names age fast; the team
   document records the exact model each member uses.
-- **Point to ponytail, never vendor it.** Its install differs per tool and it
-  ships updates; copying it would go stale and blur its license and origin.
+- **Ponytail through the miniverse's own copy.** First pointed to the
+  upstream skill with per-tool install steps; replaced, at the user's
+  request, by `ponytail.md` (see `sdd/plans/ponytail-rules.md`).
 - **Plans guide untouched.** Changing an appended guide's text would make
   `init` re-append it in existing miniverses; the team document lists the plans
   it executes instead.
@@ -50,5 +51,8 @@ No code beyond one scaffold entry; the guidance is text.
 
 - Implemented as planned. README also gained a short bullet on the team
   guide; DOCKERHUB got the same `init` output and tree lines.
+- Revised 2026-11-25: the ponytail section no longer installs anything; it
+  says how each role applies `ponytail.md`, and the team document's Skills
+  column became Ponytail level.
 - Team documents are not registered in spec Traceability (the spec format has
   no slot for them); each lists its plans, which are traced from their specs.

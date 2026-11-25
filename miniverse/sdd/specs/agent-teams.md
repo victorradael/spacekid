@@ -17,8 +17,9 @@ user runs. The miniverse only states when a team is worth forming, how it is
 shaped, and how its members behave.
 
 Agents also work better and cheaper when they share one discipline for
-writing only what the task needs. The ponytail skill provides that discipline
-and is available for most agent tools, so every team member must carry it.
+writing only what the task needs. The miniverse carries its own copy of the
+ponytail rules for that, so every team member must follow them, each role in
+its own way.
 
 ## Requirements
 
@@ -48,17 +49,19 @@ and is available for most agent tools, so every team member must carry it.
 - The miniverse's main guide must point to the team guide from the flow and
   from its map.
 
-### Ponytail skill
+### Ponytail rules
 
-- Every team member must be equipped with the ponytail skill before it starts
-  working.
-- The guide must say how to install it for the common agent tools, and how to
-  fall back to its rules file for any other tool.
-- The skill must only be obtained from its official sources, and the version
-  in use must be recorded in the team document.
-- The guide must say how each role uses the skill, including the review of
-  changes before work is considered done.
-- The skill never justifies cutting validation, error handling, security,
+- Every team member must follow the miniverse's own ponytail rules from its
+  first task; the lead puts them in each member's instructions.
+- Nothing is installed: the guide must say the original skill is never added
+  on top of the miniverse's copy.
+- The guide must say how each role applies the rules: the lead cuts scope
+  while writing the spec and plan, audits an undescribed codebase, and records
+  the shortcuts taken; implementers end every handoff with what was skipped
+  and any risk; the reviewer runs the rules' review on every change, and only
+  its approval lets a change count as done.
+- The level each member works at must be recorded in the team document.
+- The rules never justify cutting validation, error handling, security,
   accessibility, or the flow's own steps.
 
 ## Acceptance Criteria
@@ -70,9 +73,9 @@ and is available for most agent tools, so every team member must carry it.
       responsibilities, the model tier of each role with its reason, the
       organization, the handoff contents, and escalation.
 - [x] The team guide defines the structure of a team document, including the
-      exact model and the ponytail version of each member.
-- [x] The team guide requires the ponytail skill for every member, lists its
-      official sources, and explains installation and per-role use.
+      exact model and the ponytail level of each member.
+- [x] The team guide requires the miniverse's ponytail rules for every member,
+      explains how each role applies them, and installs nothing.
 - [x] Running the command again on an existing miniverse never duplicates or
       overwrites the team guide.
 - [x] SpaceKid's own miniverse follows the same guidance.
@@ -81,7 +84,7 @@ and is available for most agent tools, so every team member must carry it.
 
 - Creating, launching, or configuring agents.
 - Choosing a specific agent tool or model vendor for the user.
-- Installing the ponytail skill automatically.
+- Installing the ponytail skill, in any form.
 - Updating the main guide of miniverses created by older versions.
 
 ## Traceability

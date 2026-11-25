@@ -44,6 +44,7 @@ def test_fresh_directory_creates_full_miniverse(tmp_path: Path) -> None:
     assert (mv / "scan.sh").is_file()
     assert (mv / "sync.sh").is_file()
     assert (mv / "catalog.md").is_file()
+    assert (mv / "ponytail.md").is_file()
     for guide in _GUIDES:
         assert (mv / guide).is_file()
     assert (mv / "contexts" / ".gitkeep").is_file()
@@ -255,6 +256,36 @@ def test_team_guide_orients_teams_without_creating_agents(tmp_path: Path) -> Non
         assert tier in text
     assert "exact model" in text
     assert "Blocked members stop and escalate" in text
-    assert "`DietrichGebert/ponytail`" in text and "`@dietrichgebert/ponytail`" in text
-    assert "/ponytail-review" in text
-    assert "## Members" in text and "ponytail <version>" in text
+    assert "Every member follows `ponytail.md`" in text
+    assert "nothing\nis installed" in text
+    assert "review in `ponytail.md`" in text
+    assert "## Members" in text and "Ponytail level" in text
+
+
+def test_ponytail_rules_are_vendored_and_always_on(tmp_path: Path) -> None:
+    scaffold(tmp_path)
+    mv = tmp_path / "miniverse"
+    rules = (mv / "ponytail.md").read_text(encoding="utf-8")
+
+    assert "on every task,\nalways" in rules
+    assert "do not install the upstream skill" in rules
+    for section in ("## Levels", "## The smallest complete change", "## Review a change",
+                    "## Audit a codebase", "## Shortcut debt"):
+        assert section in rules
+    assert "Copyright (c) 2026 DietrichGebert" in rules and "MIT License" in rules
+
+    guide = (mv / "AGENTS.md").read_text(encoding="utf-8")
+    assert guide.index("## Always On: Ponytail") < guide.index("## The Flow")
+    assert "Never work on any task without following `ponytail.md`." in guide
+    assert "miniverse/ponytail.md" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+
+
+def test_existing_ponytail_rules_are_never_overwritten(tmp_path: Path) -> None:
+    mv = tmp_path / "miniverse"
+    mv.mkdir()
+    (mv / "ponytail.md").write_text("tailored\n", encoding="utf-8")
+
+    results = scaffold(tmp_path)
+
+    assert next(r for r in results if r.path == mv / "ponytail.md").status == "skipped"
+    assert (mv / "ponytail.md").read_text(encoding="utf-8") == "tailored\n"

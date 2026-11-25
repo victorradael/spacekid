@@ -49,34 +49,30 @@ team document records the exact model of each member, not only the tier.
 - Blocked members stop and escalate to the lead with the concrete blocker and
   what they need. The lead escalates to the user what only the user can
   decide.
-- Every member follows the miniverse flow and the guide of each folder it
-  writes in. Knowledge found while working becomes a context.
+- Every member follows the miniverse flow, `ponytail.md`, and the guide of
+  each folder it writes in. Knowledge found while working becomes a context.
 
-## The ponytail skill
+## Ponytail in a team
 
-Every member is equipped with the ponytail skill before it starts working. It
-makes an agent write only what the task needs, so the team spends fewer tokens
-and ships less, better-tested code. It never cuts validation, error handling,
-security, accessibility, or the steps of the flow.
+Every member follows `ponytail.md`, the miniverse's own copy of the ponytail
+rules, from its first task to its last. It is part of the miniverse: nothing
+is installed, and the upstream skill or plugin is never added on top of it.
+The lead puts it in every member's instructions when creating the member,
+in whatever form the agent tool takes them. Each role applies it this way:
 
-- **Official sources only:** GitHub `DietrichGebert/ponytail` and npm
-  `@dietrichgebert/ponytail`. Record the installed version in the team
-  document.
-- **Install:**
-  - Claude Code: `/plugin marketplace add DietrichGebert/ponytail`, then
-    `/plugin install ponytail@ponytail`, as two separate prompts.
-  - Codex: `codex plugin marketplace add DietrichGebert/ponytail` and
-    `codex plugin add ponytail@ponytail`, then trust its hooks in `/hooks`.
-  - Gemini CLI: `gemini extensions install https://github.com/DietrichGebert/ponytail`.
-  - OpenCode: `opencode plugin add @dietrichgebert/ponytail`.
-  - Any other tool: add the repository's `AGENTS.md` to the agent's rules, or
-    install its `skills/ponytail/SKILL.md` as a skill. See its `INSTALL.md`.
-- **Use by role:**
-  - Lead and implementers: keep it on (default level) for every task.
-  - Reviewer: run `/ponytail-review` on every change before approving it.
-  - Lead: run `/ponytail-audit` before planning work on an unfamiliar
-    codebase, and `/ponytail-debt` when closing the loop.
-  - Scouts: keep it on; their output is short by nature.
+- **Lead:** works in `ultra` while writing the spec and the plan, cutting
+  scope nobody needs before it reaches an implementer. Runs the codebase
+  audit before planning on a codebase no context describes yet. When closing
+  the loop, records the team's `shortcut:` markers in the plan.
+- **Implementer:** works in `full`. Ends every handoff with what was skipped
+  or not checked and any risk; that is the handoff report's last part.
+- **Reviewer:** runs the review in `ponytail.md` on every change and hands
+  the numbered findings and the verdict back to the lead. Only
+  `Verdict: Ship.` lets a change reach the lead as done.
+- **Scout:** works in `full`; its reports are short and say what was not
+  searched or checked.
+
+The level of each member is recorded in the team document.
 
 ## Team documents
 
@@ -95,9 +91,9 @@ Updated: YYYY-MM-DD
 What this team delivers, in one or two lines.
 
 ## Members
-| Member | Role | Responsibility | Model | Skills |
+| Member | Role | Responsibility | Model | Ponytail level |
 |---|---|---|---|---|
-| <name> | Lead | <one responsibility> | <exact model id> | ponytail <version> |
+| <name> | Lead | <one responsibility> | <exact model id> | ultra for spec and plan, full otherwise |
 
 ## Handoffs
 Who hands what to whom, in order, and where blockers go.

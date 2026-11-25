@@ -6,6 +6,14 @@ This folder is a miniverse: a self-contained world holding everything an agent
 needs to work well here — the knowledge gathered along the way, the files
 produced, and the spec-driven workflow that turns intent into software.
 
+## Always On: Ponytail
+
+Every agent working here follows `ponytail.md` on every task, always: alone
+or in a team, whatever its model or agent tool. It is the miniverse's own
+copy of the ponytail rules: the smallest complete change, a short reply that
+names what was skipped, a review before any change is done, and a ledger of
+the shortcuts taken. There is nothing to install. Read it before step 0.
+
 ## The Flow
 
 The flow is the heart of this miniverse. Every piece of work follows these
@@ -31,10 +39,13 @@ steps, in order, with no skipping:
    `sdd/specs/AGENTS.md`.
 2. **Plan.** Write or update an implementation plan in `sdd/plans/`, following
    `sdd/plans/AGENTS.md`.
-3. **Implementation.** Build what the plan describes. When the plan needs
-   several agents, form the team first, following `sdd/teams/AGENTS.md`.
+3. **Implementation.** Build what the plan describes, following
+   `ponytail.md`. When the plan needs several agents, form the team first,
+   following `sdd/teams/AGENTS.md`. No change is done until it passes the
+   review in `ponytail.md`.
 4. **Close the loop.** As soon as the work finishes:
    - set the plan and spec statuses and record any deviation;
+   - record the work's `shortcut:` markers in the plan, as `ponytail.md` says;
    - bring up to date every spec, plan, and context the work affected;
    - register every plan, context, and artifact created from a spec in that
      spec's Traceability section, with the date it was added, and refresh the
@@ -51,6 +62,9 @@ several levels, the higher the level, the higher the precedence.
 ## Map
 
 - `AGENTS.md` (this file) — the flow, the map, the placement rule, and the rules.
+- `ponytail.md` — how every agent works, always: the rules for the smallest
+  complete change, the review every change passes, the codebase audit, and
+  the shortcut ledger. Adapted from ponytail (MIT); nothing to install.
 - `.miniverse` — marker file. A folder is a miniverse because it holds this
   file, not because of its name. Never delete it.
 - `scan.sh` — self-contained script (POSIX `sh`, no SpaceKid needed). It scans
@@ -90,6 +104,8 @@ If yes, it is a context. Otherwise, it is an artifact.
 
 ## Rules Agents Must Never Break
 
+- Never work on any task without following `ponytail.md`.
+- Never consider a change done before it passes the review in `ponytail.md`.
 - Never start execution without consulting or creating the context it depends on.
 - Never start a spec or a plan without running `./scan.sh` first.
 - Never search the file tree for nested miniverses; use `catalog.md`.
