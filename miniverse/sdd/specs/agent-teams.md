@@ -43,9 +43,12 @@ its own way.
   handoff must contain, and how blockers are escalated.
 - The team must follow the miniverse flow: the spec and plan come before the
   build, and closing the loop is someone's explicit responsibility.
-- Each team must be described in a document kept in the miniverse, with a
-  fixed structure: purpose, members (role, responsibility, model, skills),
-  handoffs, and the plans it executes.
+- Each team must be persisted in the miniverse as its own folder, following
+  the structure Paperclip uses for teams: one manifest for the team (purpose,
+  manager, members, handoffs, status, and the plans it executes) and one
+  instructions file per member (role, who it reports to, exact model,
+  ponytail level, and its instructions), from which the member is created in
+  the agent tool.
 - The miniverse's main guide must point to the team guide from the flow and
   from its map.
 
@@ -60,7 +63,7 @@ its own way.
   the shortcuts taken; implementers end every handoff with what was skipped
   and any risk; the reviewer runs the rules' review on every change, and only
   its approval lets a change count as done.
-- The level each member works at must be recorded in the team document.
+- The level each member works at must be recorded in its member file.
 - The rules never justify cutting validation, error handling, security,
   accessibility, or the flow's own steps.
 
@@ -72,8 +75,9 @@ its own way.
 - [x] The team guide covers when to form a team, the roles and their single
       responsibilities, the model tier of each role with its reason, the
       organization, the handoff contents, and escalation.
-- [x] The team guide defines the structure of a team document, including the
-      exact model and the ponytail level of each member.
+- [x] The team guide defines how a team is persisted: a folder with a team
+      manifest and one file per member, recording the exact model and the
+      ponytail level of each member, in the layout Paperclip uses for teams.
 - [x] The team guide requires the miniverse's ponytail rules for every member,
       explains how each role applies them, and installs nothing.
 - [x] Running the command again on an existing miniverse never duplicates or

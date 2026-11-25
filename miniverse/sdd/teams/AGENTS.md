@@ -32,8 +32,8 @@ agent, creates them in their own agent tool, following this guide.
 - **Fast and cheap** — the smallest model that does the job. Bounded tasks
   with a clear output do not need deep reasoning.
 
-Move a role up a tier only when it keeps failing at its tier; record why. The
-team document records the exact model of each member, not only the tier.
+Move a role up a tier only when it keeps failing at its tier; record why. Each
+member's file records its exact model, not only the tier.
 
 ## Organization and handoffs
 
@@ -57,8 +57,8 @@ team document records the exact model of each member, not only the tier.
 Every member follows `ponytail.md`, the miniverse's own copy of the ponytail
 rules, from its first task to its last. It is part of the miniverse: nothing
 is installed, and the upstream skill or plugin is never added on top of it.
-The lead puts it in every member's instructions when creating the member,
-in whatever form the agent tool takes them. Each role applies it this way:
+The lead puts it in every member's instructions, `agents/<member>/AGENTS.md`,
+and the agent tool takes them from there. Each role applies it this way:
 
 - **Lead:** works in `ultra` while writing the spec and the plan, cutting
   scope nobody needs before it reaches an implementer. Runs the codebase
@@ -72,34 +72,75 @@ in whatever form the agent tool takes them. Each role applies it this way:
 - **Scout:** works in `full`; its reports are short and say what was not
   searched or checked.
 
-The level of each member is recorded in the team document.
+The level of each member is recorded in its file.
 
-## Team documents
+## Persisting a team
 
-Each team is described in `sdd/teams/<name>.md`, kebab-case. The lead writes
-it before the team starts and keeps it current, refreshing `Updated` on every
-edit. It lists the plans it executes; each plan stays traced from its spec.
+A team is saved in the miniverse as a folder, with the layout Paperclip uses
+for its team packages: one manifest for the team and one instructions file
+per member. The lead creates each member in the agent tool from its file;
+the folder is the source of truth, and the tool's copy follows it.
+
+```text
+sdd/teams/<team>/
+├── TEAM.md              # the team: purpose, manager, members, handoffs, plans
+└── agents/
+    └── <member>/
+        └── AGENTS.md    # one member: who it is, its model, its instructions
+```
+
+Names are kebab-case. The lead writes the folder before the team starts and
+keeps it current, refreshing `updated` on every edit. `TEAM.md` lists the
+plans the team executes; each plan stays traced from its spec.
+
+`TEAM.md`:
 
 ```markdown
+---
+name: <Team Name>
+slug: <team>
+description: What this team delivers, in one line.
+manager: agents/<lead>/AGENTS.md
+includes:
+  - agents/<member>/AGENTS.md
+status: active
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+plans:
+  - sdd/plans/<name>.md
+---
+
 # <Team Name>
 
-Status: Active | Done
-Created: YYYY-MM-DD
-Updated: YYYY-MM-DD
-
-## Purpose
-What this team delivers, in one or two lines.
-
 ## Members
-| Member | Role | Responsibility | Model | Ponytail level |
-|---|---|---|---|---|
-| <name> | Lead | <one responsibility> | <exact model id> | ultra for spec and plan, full otherwise |
+| Member | Role | Responsibility |
+|---|---|---|
+| `<lead>` | Lead | <one responsibility> |
 
 ## Handoffs
 Who hands what to whom, in order, and where blockers go.
-
-## Plans
-- `sdd/plans/<name>.md`
 ```
 
-Set `Status: Done` when every plan it executes is done. **English only.**
+`agents/<member>/AGENTS.md`:
+
+```markdown
+---
+name: <Member Name>
+slug: <member>
+role: lead | implementer | reviewer | scout
+reportsTo: <lead>
+model: <exact model id>
+ponytail: lite | full | ultra
+---
+
+You are the <role> of the <Team Name> team: <its one responsibility>.
+
+Follow `miniverse/AGENTS.md` and `miniverse/ponytail.md` on every task, at
+the <level> level. Take work only from <lead>, and hand every task back with
+what changed, how it was verified, what was skipped, and any risk.
+```
+
+The frontmatter is what the agent tool needs to create the member; the lead
+has no `reportsTo`. The body is the member's instructions and stays short:
+the flow and `ponytail.md` carry the rest and are never copied into it. Set
+`status: done` when every plan the team executes is done. **English only.**

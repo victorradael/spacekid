@@ -231,6 +231,8 @@ workspace/
 - `sdd/teams/AGENTS.md` guides work split across several AI agents: when a
   team is worth it, one responsibility per role, which model tier each role
   runs on, how work is handed over, and how each role applies `ponytail.md`.
+  Each team is saved as a folder, `sdd/teams/<team>/`: a `TEAM.md` and one
+  `agents/<member>/AGENTS.md` per member, the layout Paperclip uses for teams.
   SpaceKid never creates or installs agents; you do, in your agent tool.
 - `ponytail.md` is the miniverse's own copy of the
   [ponytail](https://github.com/DietrichGebert/ponytail) rules (MIT), adapted

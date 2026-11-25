@@ -27,7 +27,7 @@ always on; the entry guide and the team guide point to it.
    map entry, two never-break rules.
 4. **Entry guide** (`root_agents.md`): one line pointing to the rules.
 5. **Team guide**: replace the install section with per-role use of
-   `ponytail.md`; the team document records each member's level.
+   `ponytail.md`; each member's file in the team folder records its level.
 6. **Dogfood**: same files in this repo, root `AGENTS.md` included.
 7. **Tests**: the file is created, holds every section and the license, is
    never overwritten, and the main and entry guides make it always on.

@@ -6,8 +6,9 @@ Status: Done
 ## Approach
 
 One new folder guide, `sdd/teams/AGENTS.md`, generated like the other four
-guides (`write_or_append`, so re-runs never duplicate it). Team documents live
-next to it as `sdd/teams/<name>.md`: a team is part of the workflow, like
+guides (`write_or_append`, so re-runs never duplicate it). Each team is saved
+next to it as a folder, `sdd/teams/<team>/` (`TEAM.md` plus
+`agents/<member>/AGENTS.md` per member): a team is part of the workflow, like
 specs and plans. The miniverse guide points to it from step 3 of the flow
 (form the team before building, when the plan needs one) and from the map.
 No code beyond one scaffold entry; the guidance is text.
@@ -43,6 +44,12 @@ No code beyond one scaffold entry; the guidance is text.
 - **Ponytail through the miniverse's own copy.** First pointed to the
   upstream skill with per-tool install steps; replaced, at the user's
   request, by `ponytail.md` (see `sdd/plans/ponytail-rules.md`).
+- **Paperclip's team layout.** At the user's request, persistence copies
+  Paperclip's team packages: `TEAM.md` with `manager`/`includes`
+  frontmatter, and one `AGENTS.md` per member with `role`/`reportsTo`. Added
+  `status`, `created`, `updated`, `plans` (team) and `model`, `ponytail`
+  (member). No `schema: agentcompanies/v1` line: roles like `lead` are not
+  Paperclip roles, so importability is not promised.
 - **Plans guide untouched.** Changing an appended guide's text would make
   `init` re-append it in existing miniverses; the team document lists the plans
   it executes instead.
@@ -56,3 +63,6 @@ No code beyond one scaffold entry; the guidance is text.
   column became Ponytail level.
 - Team documents are not registered in spec Traceability (the spec format has
   no slot for them); each lists its plans, which are traced from their specs.
+- Revised 2026-11-25: the single `sdd/teams/<name>.md` became a folder in
+  Paperclip's team layout; the model and ponytail level moved from the team
+  table into each member's frontmatter, so they live in one place.

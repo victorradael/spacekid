@@ -87,7 +87,8 @@ several levels, the higher the level, the higher the precedence.
 - `sdd/specs/AGENTS.md` — how to write a spec.
 - `sdd/plans/` — one implementation plan per spec, paired by matching name.
 - `sdd/plans/AGENTS.md` — how to write an implementation plan.
-- `sdd/teams/` — one document per agent team: members, models, handoffs.
+- `sdd/teams/<team>/` — one folder per agent team: `TEAM.md` and one
+  `agents/<member>/AGENTS.md` per member, with its model and instructions.
 - `sdd/teams/AGENTS.md` — when and how to form a team of agents, and how its
   members work. The miniverse never creates agents.
 

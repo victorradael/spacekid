@@ -28,7 +28,8 @@ Updated: 2026-11-25
 
 `sdd/teams/AGENTS.md` is guidance only: SpaceKid creates no agents and installs
 no skills. It defines roles, model tiers, handoffs, and how each role applies
-`ponytail.md`; teams are described in `sdd/teams/<name>.md`.
+`ponytail.md`; each team is saved as `sdd/teams/<team>/`, in the layout of Paperclip's team
+packages: `TEAM.md` plus one `agents/<member>/AGENTS.md` per member.
 
 `miniverse/ponytail.md` (`write_or_skip`) is the vendored, adapted copy of the
 ponytail rules every agent follows on every task (see `contexts/ponytail.md`);

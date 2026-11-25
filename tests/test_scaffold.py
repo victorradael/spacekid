@@ -259,7 +259,10 @@ def test_team_guide_orients_teams_without_creating_agents(tmp_path: Path) -> Non
     assert "Every member follows `ponytail.md`" in text
     assert "nothing\nis installed" in text
     assert "review in `ponytail.md`" in text
-    assert "## Members" in text and "Ponytail level" in text
+    assert "sdd/teams/<team>/" in text and "TEAM.md" in text
+    assert "agents/<member>/AGENTS.md" in text
+    for field in ("manager:", "includes:", "reportsTo:", "model:", "ponytail:"):
+        assert field in text
 
 
 def test_ponytail_rules_are_vendored_and_always_on(tmp_path: Path) -> None:
