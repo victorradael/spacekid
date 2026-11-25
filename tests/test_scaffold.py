@@ -250,6 +250,7 @@ def test_team_guide_orients_teams_without_creating_agents(tmp_path: Path) -> Non
     text = (tmp_path / "miniverse" / "sdd" / "teams" / "AGENTS.md").read_text(encoding="utf-8")
 
     assert "never creates agents" in text
+    assert "ships no agents or ready-made\nteams" in text
     for role in ("Lead", "Implementer", "Reviewer", "Scout"):
         assert role in text
     for tier in ("Strongest reasoning", "Balanced", "Fast and cheap"):

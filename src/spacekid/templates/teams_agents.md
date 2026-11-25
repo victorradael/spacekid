@@ -1,9 +1,11 @@
 # AGENTS.md — Forming Agent Teams
 
 A team is a set of AI agents that carry out the flow together, each with one
-responsibility. This guide says when to form one, how to shape it, and how its
-members work. **The miniverse never creates agents.** The user, or the lead
-agent, creates them in their own agent tool, following this guide.
+responsibility. This guide is addressed to the AI tool: it says when to form
+a team, how to shape it, how its members work, and how to persist it.
+**The miniverse never creates agents** and ships no agents or ready-made
+teams. The AI tool builds the team folder below and creates the agents from
+it, following this guide.
 
 ## When to form a team
 

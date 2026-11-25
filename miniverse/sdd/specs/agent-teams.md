@@ -27,9 +27,9 @@ its own way.
 
 - The miniverse must contain a guide, part of the flow, that orients the
   creation and use of agent teams.
-- The guide must state explicitly that the miniverse never creates agents: it
-  orients the user or the lead agent, who creates them in their own agent
-  tool.
+- The guide must state explicitly that the miniverse never creates agents and
+  ships no agents or ready-made teams: it is a guideline for the AI tool,
+  which builds the team structure and creates the agents itself.
 - The guide must say when a team is worth forming and when a single agent is
   enough.
 - The guide must define the standard roles of a team, each with one
